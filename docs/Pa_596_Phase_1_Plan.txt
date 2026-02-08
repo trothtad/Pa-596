@@ -1,0 +1,449 @@
+# Pā 596 - Phase 1 Implementation Plan
+# DETAILED BREAKDOWN FOR TECHNICAL IMPLEMENTATION
+
+## OVERALL PHILOSOPHY
+KEEP IT SIMPLE! Build one small piece at a time. Test each component before moving on.
+Don't try to implement everything at once. Focus on getting the core functionality working first.
+
+---
+
+## 1.1: TileMap Setup (5 days)
+
+### Day 1: Basic Project Structure
+1. Create a new Godot project
+   - Use Godot 4.x (recommended for better 2D tools)
+   - Select 2D project template
+   - Set up basic project structure (folders for: scenes, scripts, assets, resources)
+
+2. Set up version control
+   - Initialize Git repository
+   - Create .gitignore file for Godot projects
+   - Make initial commit
+
+### Day 2: TileMap Node Creation
+1. Create a new scene with a TileMap as root
+   - Name it "BattleMap"
+   - Save in scenes/maps/
+   - Set cell size to 32x32 pixels (or another appropriate size)
+
+2. Import placeholder tileset
+   - Create simple 3-4 terrain types (grass, dirt, road)
+   - No need for fancy graphics yet - focus on structure
+
+3. Create main scene
+   - Add empty Node2D as root
+   - Name it "Battle"
+   - Add the BattleMap as a child
+
+### Day 3: Grid Visualization
+1. Create a simple grid visualization script
+   ```
+   # Attach to the TileMap node
+   # Draw simple grid lines to visualize the grid
+   # Can be toggled on/off with a key press
+   ```
+
+2. Test TileMap editing
+   - Verify you can place tiles
+   - Confirm grid alignment works as expected
+   - Test Z-ordering for overlapping elements
+
+### Day 4: Camera Controls
+1. Add a Camera2D node
+   - Set up basic movement controls (pan, zoom)
+   - Set reasonable limits
+
+2. Create debug UI
+   - Display current coordinates
+   - Show grid cell under cursor
+   - Toggle grid visibility
+
+### Day 5: Documentation & Testing
+1. Document tile categories
+   ```
+   # Base Terrain Types:
+   # - Open (grass, dirt, etc.)
+   # - Road (faster movement)
+   # - Rough (slower movement)
+   # - Impassable (buildings, large obstacles)
+   ```
+
+2. Test with different map sizes
+   - Small test map (20x20)
+   - Medium test map (50x50)
+   - Check performance on larger sizes
+
+---
+
+## 1.2: TerrainData Resource (7 days)
+
+### Day 1: Resource Class Definition
+1. Create a new GDScript file
+   - Name it "terrain_data.gd"
+   - Place in resources/
+   - Extend Resource class
+
+2. Define basic structure
+   ```
+   # Basic structure would include:
+   # - Dictionary to store cell data keyed by Vector2 position
+   # - Default values for empty cells
+   # - Helper methods for getting/setting data
+   ```
+
+### Day 2: Core Properties
+1. Define the basic properties
+   ```
+   # Each cell should store:
+   # - elevation (int, 0-5)
+   # - blocks_los (bool)
+   # Add more properties later, keep it minimal for now
+   ```
+
+2. Create getters and setters
+   ```
+   # Functions to:
+   # - Get properties for a specific cell
+   # - Set properties for a specific cell
+   # - Reset cell to default values
+   ```
+
+### Day 3: Map Size Handling
+1. Add map size properties
+   ```
+   # Store width and height of the map
+   # Functions to check if coordinates are within bounds
+   # Methods to resize the map if needed
+   ```
+
+2. Add initialization methods
+   ```
+   # Function to create a new blank map of a given size
+   # Set all cells to default values
+   ```
+
+### Day 4: Serialization
+1. Add save/load functionality
+   ```
+   # Override _get_property_list, _get, and _set methods
+   # This allows the Resource to be properly saved/loaded
+   ```
+
+2. Test serialization
+   - Create test map data
+   - Save to disk
+   - Load from disk
+   - Verify data integrity
+
+### Day 5: Integration with TileMap
+1. Create a script to attach to BattleMap
+   ```
+   # This script will:
+   # - Hold a reference to a TerrainData resource
+   # - Keep visual TileMap and TerrainData in sync
+   ```
+
+2. Add synchronization methods
+   ```
+   # Functions to update TerrainData when TileMap changes
+   # Functions to update TileMap when TerrainData changes
+   ```
+
+### Day 6: Visual Debug Tools
+1. Add visualization methods
+   ```
+   # Functions to:
+   # - Visualize elevation with color overlays
+   # - Highlight LOS-blocking cells
+   ```
+
+2. Create a property inspector panel
+   ```
+   # Simple UI to show properties of selected cell
+   # Display current values
+   ```
+
+### Day 7: Documentation & Unit Tests
+1. Document the TerrainData class
+   ```
+   # Full documentation of:
+   # - All properties
+   # - All methods
+   # - Usage examples
+   ```
+
+2. Create basic unit tests
+   - Test setting/getting properties
+   - Test bounds checking
+   - Test serialization
+
+---
+
+## 1.3: Basic Editor Integration (9 days)
+
+### Day 1: Editor UI Layout
+1. Create editor scene
+   - Name it "MapEditor"
+   - Save in scenes/editor/
+   - Include BattleMap as a child node
+
+2. Add UI panels
+   - Create tools panel (Control node)
+   - Create properties panel (Control node)
+   - Position on sides of screen
+
+### Day 2: Property Editing Mode
+1. Create property editing tool
+   ```
+   # Script to:
+   # - Enter "property editing mode"
+   # - Handle clicks on the map grid
+   # - Modify TerrainData properties at clicked location
+   ```
+
+2. Add property selection UI
+   - Add buttons/sliders for elevation
+   - Add toggle for LOS blocking
+
+### Day 3: Brush Implementation
+1. Create basic brush tool
+   ```
+   # Script to:
+   # - Allow "painting" properties on multiple cells
+   # - Show brush size and shape preview
+   # - Apply properties to all cells under brush
+   ```
+
+2. Add brush size selection
+   - Add buttons for different brush sizes (1x1, 3x3)
+   - Show brush outline on map
+
+### Day 4: Selection Tools
+1. Add rectangle selection
+   ```
+   # Script to:
+   # - Select rectangular areas on the map
+   # - Show selection outline
+   # - Apply property changes to all selected cells
+   ```
+
+2. Add fill tool
+   ```
+   # Script to:
+   # - Select contiguous areas with same property value
+   # - Apply property changes to all selected cells
+   ```
+
+### Day 5: Visual Feedback
+1. Enhance property visualization
+   ```
+   # Script to:
+   # - Show colored overlays for different properties
+   # - Toggle visibility of different property visualizations
+   ```
+
+2. Add interactive preview
+   ```
+   # Show how property changes will look before applying
+   # Update preview as cursor moves
+   ```
+
+### Day 6: Save/Load UI
+1. Add file dialog
+   ```
+   # UI to:
+   # - Save map to file
+   # - Load map from file
+   # - Create new map
+   ```
+
+2. Implement autosave
+   ```
+   # Script to:
+   # - Automatically save map at intervals
+   # - Keep backup versions
+   ```
+
+### Day 7: Test Map Creation
+1. Create a simple test map
+   - Lay out basic terrain
+   - Set elevation values
+   - Set LOS blocking properties
+
+2. Test editing tools
+   - Verify all tools work as expected
+   - Fix any issues found
+
+### Day 8: Undo/Redo System
+1. Implement basic undo/redo
+   ```
+   # Script to:
+   # - Track property changes
+   # - Allow undoing changes
+   # - Allow redoing undone changes
+   ```
+
+2. Add UI for undo/redo
+   - Add buttons for undo/redo
+   - Add keyboard shortcuts (Ctrl+Z, Ctrl+Y)
+
+### Day 9: Documentation & User Guide
+1. Document editor controls
+   ```
+   # Document:
+   # - All tool functions
+   # - Keyboard shortcuts
+   # - Recommended workflow
+   ```
+
+2. Create simple tutorial map
+   - Step-by-step instructions for creating a map
+   - Examples of different property combinations
+
+---
+
+## IMPLEMENTATION NOTES
+
+### TerrainData Structure (Simplified Example)
+```gdscript
+extends Resource
+class_name TerrainData
+
+# Map dimensions
+var width: int = 20
+var height: int = 20
+
+# Cell data dictionary
+# Key: Vector2i(x, y), Value: Dictionary of properties
+var cells = {}
+
+# Default cell properties
+var default_cell = {
+    "elevation": 1,
+    "blocks_los": false
+}
+
+# Get cell properties
+func get_cell(pos: Vector2i) -> Dictionary:
+    if cells.has(pos):
+        return cells[pos]
+    return default_cell.duplicate()
+
+# Set a single property for a cell
+func set_cell_property(pos: Vector2i, property: String, value):
+    if not cells.has(pos):
+        cells[pos] = default_cell.duplicate()
+    cells[pos][property] = value
+
+# Check if coordinates are valid
+func is_valid_cell(pos: Vector2i) -> bool:
+    return pos.x >= 0 and pos.x < width and pos.y >= 0 and pos.y < height
+```
+
+### Integration with TileMap (Simplified Example)
+```gdscript
+extends TileMap
+
+# Reference to terrain data
+var terrain_data: TerrainData
+
+# Initialize with default terrain data
+func _ready():
+    terrain_data = TerrainData.new()
+    terrain_data.width = 20
+    terrain_data.height = 20
+
+# Update a cell's visual appearance based on properties
+func update_cell_visual(pos: Vector2i):
+    var cell_data = terrain_data.get_cell(pos)
+    
+    # Choose appropriate tile based on properties
+    var tile_id = 0  # Default tile
+    
+    # Elevation affects the tile used
+    if cell_data.elevation > 1:
+        tile_id = cell_data.elevation  # Example mapping
+        
+    # Set the tile
+    set_cell(0, pos, 0, Vector2i(tile_id, 0))
+```
+
+### Property Editing Tool (Simplified Example)
+```gdscript
+extends Node
+
+# References
+var battle_map: TileMap
+var terrain_data: TerrainData
+
+# Current property being edited
+var current_property = "elevation"
+var current_value = 1
+
+# Current brush size
+var brush_size = 1
+
+# Handle input
+func _input(event):
+    if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+        # Convert mouse position to map coordinates
+        var map_pos = battle_map.local_to_map(battle_map.get_local_mouse_position())
+        
+        # Apply property change with current brush
+        apply_brush(map_pos)
+
+# Apply brush at given position
+func apply_brush(center_pos: Vector2i):
+    var radius = brush_size / 2
+    
+    # Apply to all cells in brush
+    for x in range(center_pos.x - radius, center_pos.x + radius + 1):
+        for y in range(center_pos.y - radius, center_pos.y + radius + 1):
+            var pos = Vector2i(x, y)
+            
+            # Skip if outside map bounds
+            if not terrain_data.is_valid_cell(pos):
+                continue
+                
+            # Apply property change
+            terrain_data.set_cell_property(pos, current_property, current_value)
+            
+            # Update visual
+            battle_map.update_cell_visual(pos)
+```
+
+---
+
+## TESTING CHECKLIST
+
+### TileMap Testing
+- [ ] Tiles can be placed and edited
+- [ ] Grid visualization works
+- [ ] Camera controls function properly
+- [ ] Different map sizes load correctly
+
+### TerrainData Testing
+- [ ] Can set and get properties for cells
+- [ ] Bounds checking works
+- [ ] Serialization saves and loads correctly
+- [ ] Visual debugging shows correct information
+
+### Editor Tools Testing
+- [ ] Property editing tools modify correct cells
+- [ ] Brush tools work with different sizes
+- [ ] Selection tools select correct areas
+- [ ] Save/load functions work properly
+- [ ] Undo/redo system works as expected
+
+---
+
+## REMEMBER! KEEP IT SIMPLE!
+
+- Focus on making each component work correctly before moving on
+- Don't worry about optimization yet - get it working first
+- Use print statements for debugging
+- Commit code frequently
+- Test each feature as it's implemented
+- Document your code as you write it
+
+When in doubt, implement the simplest solution first. You can always refine it later.

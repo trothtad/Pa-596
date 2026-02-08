@@ -1,0 +1,1411 @@
+# Pā 596 - Master Reference Document
+## Comprehensive Design & Worldbuilding Guide
+
+*Last Updated: February 2026*
+
+---
+
+## Table of Contents
+
+1. [Core Concept & Design Philosophy](#core-concept)
+2. [Historical Timeline](#timeline)
+3. [The Deep Ones & The Compact](#deep-ones)
+4. [Monster Taxonomy](#monsters)
+5. [Military Units & Factions](#military)
+6. [Campaign Structure](#campaign)
+7. [Core Gameplay Systems](#gameplay)
+8. [Technology & Equipment](#technology)
+9. [The World in 1970](#post-war)
+10. [Sequel Hooks & Future Concepts](#future)
+11. [LLM Integration Ideas](#llm-integration)
+12. [Design Philosophy & Ludonarrative Coherence](#philosophy)
+
+---
+
+<a name="core-concept"></a>
+## 1. Core Concept & Design Philosophy
+
+**Genre:** Tactical real-time strategy with persistent campaign layer
+
+**Core Fantasy:** You are a desperate Cold War commander stopping unstoppable things with fragile, overmatched units and precious tech. Every decision costs blood and morale.
+
+**Inspirations:** 
+- Close Combat (real-time tactics, morale, persistence)
+- XCOM (resource management, strategic layer, permadeath)
+- Combat Mission (detailed simulation, line-of-sight, suppression)
+- Alastair Reynolds (grounded sci-fi, cosmic horror with physics)
+- Cold War conspiracy fiction
+
+**Key Differentiators:**
+- Humans are always outmatched - victory is survival, delay, or pyrrhic
+- Troops get worse over time, not better (trauma, exhaustion, equipment degradation)
+- Persistent battlefield - dead tanks stay dead, craters remain
+- Bureaucratic horror tone - dry reports concealing terrible realities
+- Environmental destruction as tactical consideration
+
+**NOT This Game:**
+- Power fantasy where you unlock god-tier units
+- RTS where you build up to overwhelm enemies
+- Horror game with jump scares
+- Lovecraft pastiche with tentacles and madness meters
+
+---
+
+<a name="timeline"></a>
+## 2. Historical Timeline
+
+### Early Signs & Cover-Ups (1939-1949)
+
+**1939** - Russian icebreaker *Krasin* encounters something in Arctic. Entire crew lost except navigator who dies of exposure after reaching shore. NKVD seals all records.
+
+**1942** - French colonial village near Hanoi found devastated. Colonial authorities blame Japanese. Survivors describe "something that shouldn't be."
+
+**1943** - Giant salamander sighted in Lake Victoria region, Kenya. Dismissed as hoax. British submarine reports collision with "submerged mass" that wasn't there on sonar.
+
+**1944** - Menace-class entity destroys Wehrmacht bunker complex in Normandy. Allied forces arrive to find German defenders already dead, facility melted. Attributed to experimental weapon malfunction.
+
+**1944** - Taniwha caught in nets by Māori fishing crew off Kaikoura coast. Government confiscates catch, crew silenced. Known privately as "4Square Affair" after the dairy company that supplied the bribe.
+
+**1945** - Post-war chaos obscures numerous incidents. Pattern not yet recognized.
+
+**1947** - UK Admiralty observes persistent North Sea anomalies. Formation of investigation committee (later becomes MF(E) nucleus).
+
+Revised Timeline Framework
+Pre-Emergence (1939-1947): Whispers and anomalies
+
+Scattered incidents, mostly covered up or rationalized
+Pattern not yet recognized
+These are the "looking back, we should have known" moments
+
+The Goa Incident (Early 1948): Everything changes
+
+First major, undeniable outbreak
+Portuguese colonial garrison + local forces
+Can't suppress this one - too big, too public
+British observers present (maybe naval patrol nearby?)
+Mass casualties, civilian panic
+India annexes territory in aftermath (Portugal too devastated to object)
+
+Response Phase (Late 1948-1949): Improvisation and panic
+
+MF(E) forms from British observers/survivors of Goa
+Brigadier Thornycroft was at Goa? Or commanded the naval response?
+Other nations scrambling to form own units
+US creates Task Force CRYPTIC (1949)
+Equipment is whatever's on hand - WWII surplus, experimental prototypes
+Doctrine doesn't exist yet, learning by dying
+
+Escalation (1950-1953): It's everywhere
+
+Multiple breaches globally
+Shandong Peninsula (1950) during Chinese Civil War chaos
+Korean Peninsula complications (1950-1951)
+New Zealand outbreak (1951-1952) - can't hide anymore, goes fully public
+Channel Incursion (1952) - Europe directly threatened
+Emergency international cooperation (1952-1953)
+
+The Grind (1953-1955): Professionalization under pressure
+
+MF(E) and Task Force CRYPTIC develop doctrine
+Specialized equipment being produced
+Tactical nuclear weapons normalized
+Civilian evacuations routine
+Political systems straining
+This is the "Mobile Force (Experimental)" era campaign
+
+The Crisis (1955-1956): Breaking point
+
+Multiple Campaign-class sightings
+Coordinated attacks (Deep One strategy shift?)
+New Zealand Southern Alps - Pā 596 defensive line
+Human casualties unsustainable
+Economic collapse imminent
+Emergency negotiations begin
+
+The Compact (Late 1956): Desperate peace
+
+Ceasefire terms negotiated
+Mediterranean sealed
+Antarctica ceded
+The Cancer introduced
+World exhales, begins rebuilding under new reality
+
+### Post-Compact Era (1960+)
+
+**1970-present** - Uneasy peace. The Cancer economy. Technological acceleration. Regional conflicts continue but under shadow of Compact. Human civilization fundamentally changed.
+
+---
+
+<a name="deep-ones"></a>
+## 3. The Deep Ones & The Compact
+
+### Nature & Origins
+
+The Deep Ones are *not* Lovecraft's Deep Ones, though the name persists in classified documents. They are:
+
+- Ancient intelligence from oceanic depths
+- Biology indistinguishable from magic/technology (Clarke's Law applies)
+- Political structure opaque to human understanding
+- Operate on timescales of millennia
+- Combat units deployed are analogous to human use of animals or machines
+
+### Arousal & Escalation
+
+**Initial Awakening:** Unclear. Theories include:
+- Heavy water experiments penetrating "wrong" depth
+- Nuclear weapons use (Hiroshima/Nagasaki) perceived as attack
+- Natural cycle of emergence (we're just arrogant thinking we caused it)
+- Internal Deep One politics spilling over
+
+**Strategic Phases:**
+1. **Enslave humanity** - Initial strategy. Underestimated human capacity for violence and technological adaptation.
+2. **Goad nuclear use** - Attempt to make humans use all nuclear weapons. Failed when humans realized the game.
+3. **Grind to nothing** - War of attrition. Nearly succeeded.
+4. **Stalemate** - Feared human technological acceleration. Humans learning too fast, adapting too well. War becoming unpredictable.
+
+### The Compact (1969)
+
+**Terms:**
+- Ceasefire between humans and Deep Ones
+- Mediterranean sealed at Gibraltar and Suez
+- Antarctica entirely ceded ("White Dead Zone")
+- Cook Islands becomes Deep One research station
+- Okinawa as "cultural exchange zone" (limited diplomatic contact)
+- Specific nations designated for tribute
+
+**The Cancer:**
+- Alien virus that collects rare metals atom-by-atom
+- Spreads through human body over years
+- Incredibly painful
+- Produces platinum, gold, rare earth pearls
+- Must be excised and tithed to Deep Ones
+- Initially voluntary, later becomes involuntary in some nations
+- Creates entire medical-industrial complex
+- Black market in counterfeit pearls, body parts
+- Medical districts like company towns for the infected
+
+**Human Response:**
+- Joint NATO-Warsaw garrison forces
+- North African nations independent but integrated into defense grid
+- Technological acceleration continues (arms race mentality remains)
+- Sealed territories patrolled jointly
+- Political tensions remain but subordinate to Compact maintenance
+
+### Why Negotiate?
+
+**Deep One perspective (inferred):**
+- Human technological development exponential
+- War becoming costly even for Deep Ones
+- Risk of human strategic breakthrough (what comes after nukes?)
+- Internal political faction wanting different approach
+- Compact provides steady resource flow without risk
+
+**Human perspective:**
+- Extinction-level threat neutralized
+- Time to rebuild and adapt
+- Cancer economy provides leverage (humans control production)
+- Hope for eventual understanding or better terms
+- Alternative was losing
+
+---
+
+<a name="monsters"></a>
+## 4. Monster Taxonomy
+
+### Classification System
+
+**Hound-Class:** Squad-scale threats (dog to elk-sized)
+**Taniwha-Class:** Rhino to bus-sized (section to platoon threats)
+**Menace-Class:** Tank to small house (company to battalion threats)
+**Campaign-Class:** Colossal (strategic weapons required)
+
+### Naming Conventions by Nation
+
+**United Kingdom:** Fake Rainbow Codes (bureaucratic obfuscation)
+- Examples: Copper Dust, Green Wheel, Blue Thunder
+
+**Russia/Soviet Union:** WW2 Battles (connecting new horror to old trauma)
+- Examples: Dniepr, Smolensk, Kursk, Stalingrad
+
+**United States:** Alphanumeric + Slang (military-industrial naming)
+- Examples: K-A12 "Colossus", J-88 "Jenny", P-14 "Prowler"
+
+### Hound-Class (Current List - SUBJECT TO REVISION)
+
+| Name | Description | Tactical Role |
+|------|-------------|---------------|
+| **Hellhounds** | Fast flankers, size of large dogs. Struggle in urban terrain, excel in jungle/bush. | Harassment, flank security threat |
+| **Rootworms** | Burrowing constrictors nest in soft soil. Emerge suddenly. Russian tactic: bait with prisoners, incinerate nests. | Area denial, ambush |
+| **Dapper Dans** | Skittering horrors firing poisoned darts. "A Little Dab'll Do Ya." Dangerous at 100m. | Ranged harassment |
+| **Honeycrabs** | Light anti-armor melee. Cling to tanks, strike weak points with explosive tendrils. | Vehicle harassment |
+| **Whistlers** | Mercury ion slingers. Hypervelocity one-shot kill potential, poor reload. "If they miss, you live." | Anti-infantry sniping |
+| **Snatchlings** | Gangly bipeds with long arms. Drag isolated soldiers away. Not deadly alone, terrifying in fog. | Morale weapon, isolation |
+| **Blowcows** | Gassy bloated beasts. Explode when shot. "Shoot one, kill three." | Trap, area denial |
+| **Scissormen** | Two-legged insectile. Razor-jawed. Decapitate sentries cleanly. Silent but quick. | Infiltration, assassination |
+
+**Gameplay Considerations:**
+- Need to feel threatening without being frustrating
+- Small groups should pressure, not overwhelm
+- Ambush and surprise more important than raw damage
+- Force player to maintain formation, not leave stragglers
+- Some should force specific counter-tactics (don't shoot Blowcows near your own troops!)
+
+### Taniwha-Class
+
+| Name | Origin | Description |
+|------|--------|-------------|
+| **Copper Dust** | UK | Dense enzyme fog eats unprotected troops. "Rains rust on the bone." |
+| **Dniepr** | RU | IR-invisible wall-shredder. Tires easily. Used in ambush. |
+| **K-A12 "Colossus"** | US | Sonic artillery. Shatters trenches, ruptures lungs. |
+| **Green Wheel** | UK | Rolling armored organism. Weak only from behind. Explodes on death. |
+| **Smolensk** | RU | Semi-aquatic. Stalks through river deltas. Drowns squads with water-jets. |
+| **J-88 "Jenny"** | US | Lures troops with mimicked human voices. Acid jets, armored carapace. |
+
+**Design Intent:**
+- Require concentrated fire or specialist equipment
+- Force combined-arms response
+- Each has weakness that must be exploited
+- Named variants have personality in tactical behavior
+
+### Menace-Class (Greek Titans)
+
+| Name | Description |
+|------|-------------|
+| **Chronos** | Emits mental disruption. Troops hallucinate, panic. Weak to fire. Rare. |
+| **Oceanus** | Immobile artillery beast. Crablike. Launches napalm & gas shells. Stuns via static. |
+| **Crius** | Mobile melee threat. Rams defenses with armored skull. Avoid direct engagement. |
+| **Themis** | Tall biped. Screams crack walls. Shoots directed pressure beams. |
+| **Prometheus** | Spits fire from dozens of orifices. Immolates forests, trenches. |
+| **Iapetus** | Burrows like Rootworms, tank-sized. Pops up under vehicles. |
+
+**Tactical Implications:**
+- Battalion-level response minimum
+- Combined arms essential
+- Possibly tactical nuclear weapons
+- Victory often means "delayed" or "driven off"
+- Environmental damage severe
+
+### Campaign-Class (Greek Letters)
+
+| Name | Description |
+|------|-------------|
+| **Alpha** | Snake-like, kilometers long. First confirmed megafauna. Altered river courses. |
+| **Beta** | Lizardoid quadruped. Moves like mountain. 100+ kilotonnes. |
+| **Gamma** | Insectile. Lays egg-sacs. Parasite vectors. Extinction-level without strategic weapons. |
+| **Delta** | Flying behemoth. Hurricane-force winds when airborne. |
+| **Epsilon** | No visual contact. Seismic only. Believed to tunnel continents. May not be alive. |
+
+**Narrative Role:**
+- Campaign-defining events, not regular encounters
+- Player forces evacuate, observe, coordinate strategic response
+- Victory is civilian evacuation, intel gathering, or delay
+- These are what necessitated The Compact
+
+---
+
+<a name="military"></a>
+## 5. Military Units & Factions
+
+### Mobile Force (Experimental) 1st Battle Group [MF(E)-1BG]
+
+**Nationality:** British Empire/Commonwealth  
+**Formed:** September 1948  
+**Commanding:** Brigadier R.A.F. Thornycroft, DSO & Bar  
+**Motto:** "Videre et Vincere" (To See and To Conquer)  
+**Strength:** 347 all ranks, 43 combat vehicles, 27 support vehicles
+
+**Organization:**
+
+**A Squadron "The Beasthunters"** - Heavy assault and fire support
+- 3x Troops of Centurion Mk.3 (tungsten APDS, experimental ammunition)
+- 1x Troop of Churchill AVRE (modified for close assault)
+- Attached: Royal Artillery Forward Observer teams
+
+**B Squadron "The Bloodhounds"** - Reconnaissance and infantry support
+- Mixed Cromwell VIII and Comet tanks
+- Infantry support vehicles (halftracks, Universal Carriers)
+- Motorcycle reconnaissance section
+
+**C Squadron "The Watchers"** - Signals, engineering, support
+- Signals Section (experimental radio equipment)
+- Engineer Troop (demolitions, fortifications)
+- Supply and maintenance
+- Medical section (attached Royal Army Medical Corps)
+
+**Key Personnel:**
+- **Lt Col "Bonzer" McKenzie** (ANZAC Exchange Officer) - A Squadron Commander. Veteran of North Africa and New Guinea. Knows jungle warfare, knows armored warfare. Combines both.
+- **Major Patricia Blackwood** - Intelligence Officer, Cambridge xenobiology background. First to propose behavioral classification system for kaiju. Distrusted by old guard, essential to mission success.
+- **Dr. Chen Wei-Ming** - Civilian scientific advisor. Hypercompetent autodidact, no formal doctorate. Fled China 1948. Expertise in chemistry, biology, whatever's needed. Never sleeps, chain-smokes, saves lives.
+- **Squadron Leader "Biggles" Fortescue-Smythe** - RAF liaison. Coordinates air support. Perpetually cheerful. Survived 47 combat sorties. Everyone assumes he'll die tomorrow. Never does.
+
+**Equipment Philosophy:**
+- Mix of WWII proven kit and experimental prototypes
+- Reliability over cutting-edge (cutting-edge gets you killed)
+- Heavy emphasis on communication and coordination
+- Specialist ammunition: tungsten penetrators, incendiary, experimental sonic rounds
+- Modified vehicles: extra armor, escape hatches, fire suppression
+
+**Doctrine:**
+- Reconnaissance in force
+- Deliberate engagement with prepared fallback
+- Combined arms always (never send tanks without infantry, never infantry without support)
+- Preserve force over killing monsters
+- Intel gathering as important as combat
+
+**Culture:**
+- "Monster Fuckers" - gallows humor name, never official
+- Tea breaks maintained even under fire (morale essential)
+- Formal even in field (appearances matter for discipline)
+- ANZAC contingent provides valuable "fuck the rules" perspective
+- Scientific advisors integrated into command structure (not sidelined)
+
+### Task Force CRYPTIC
+
+**Nationality:** United States  
+**Formed:** March 1949  
+**Commander:** Colonel James "Iron Jim" Doolittle Jr. (son of the Doolittle)  
+**Parent Organization:** The Black Chamber (resurrected cryptanalysis agency)  
+**Director:** Colonel Frank "Cipher" Rowlett  
+**Classification:** EYES ONLY - MAJESTIC
+
+**Organization:**
+
+**A Company "The Codebreakers"** - Heavy weapons and mechanized infantry
+- M46 Patton tank platoons
+- Mechanized infantry in M75 APCs
+- Heavy weapons section (recoilless rifles, experimental directed-energy)
+- 2x T95 "Super Heavy" prototypes (only two built, both assigned here)
+
+**B Company "The Listeners"** - Signals intelligence and reconnaissance
+- Radio intercept teams
+- Electronic warfare specialists
+- Scout platoons in jeeps and light armor
+- IBM computing equipment (mobile, temperamental, essential)
+
+**C Company "The Spooks"** - Special operations and scientific advisory
+- Pathfinder platoon
+- Demolitions experts
+- Scientific Advisory Group (military and civilian mix)
+- "Acquisition team" (looting enemy/kaiju technology)
+
+**Notable Personnel:**
+- **Lt Audie Murphy** - Yes, that one. Most decorated soldier of WWII now fighting things that don't die to normal bullets. Handles it with grim pragmatism.
+- **Captain Grace Murray Hopper** - Signals intelligence. Building early computing systems for cryptanalysis and fire control. "It's easier to ask forgiveness than permission."
+- **Dr. J. Robert Oppenheimer** - Security clearance "complicated." Advisory role. Guilt over atomic bomb finds strange outlet in fighting actual monsters. Chain-smokes with Dr. Chen when forces cooperate.
+- **Colonel Chuck Yeager** - Air support coordination. First man to break sound barrier now coordinating strikes on things that break physics. Perpetually annoyed by paperwork.
+
+**Equipment Philosophy:**
+- Cutting-edge American technology
+- If it's experimental, we'll test it in combat
+- Overwhelming firepower doctrine (when in doubt, use more explosives)
+- Computing and cryptanalysis equipment forward-deployed
+- Logistics obsession (we will be supplied, period)
+
+**Doctrine:**
+- "Shock and Awe" before the term existed
+- Combined arms with emphasis on firepower
+- Air support integral to operations
+- Scientific method applied to monster-killing (try everything, record results)
+- Interservice rivalry subordinate to mission (mostly)
+
+**Culture:**
+- "We're all gonna die, might as well get paid" - contractor mentality
+- Scientific advisors treated as equals (unusual for US military)
+- Classified above Top Secret (most personnel don't know what agency they work for)
+- Loose relationship with regular military chain of command
+- Innovation encouraged, paperwork discouraged
+
+### Other National Responses (Brief Overview)
+
+**Soviet Monster Hunting Forces:** Brutal efficiency. High casualties accepted. Names units after WW2 battles. Integration of Gulag labor for "expendable" roles. Surprisingly effective doctrine development.
+
+**French Colonial Forces:** Fighting kaiju and independence movements simultaneously. Doctrine developed in Indochina. Eventually overwhelmed. Veterans form nucleus of post-colonial forces.
+
+**New Zealand Defense Force:** Fought first major land campaign on home soil. Civilian militias integrated. Māori units particularly effective (cultural familiarity with taniwha concept). Pā 596 named for their last stand.
+
+**Chinese Forces (PLA/Nationalist/Warlord Remnants):** Fragmented response during civil war. Eventually unified against existential threat. Mass human wave tactics evolved into coordinated mass human wave tactics. Enormous casualties. Doctrine emphasizes expendable troops protecting valuable assets.
+
+---
+
+<a name="campaign"></a>
+## 6. Campaign Structure
+
+### Campaign Arc Philosophy
+
+The game's campaign should feel like:
+- **Act I (Goa):** Learning the rules, improvisation, "what the fuck are we dealing with?"
+- **Act II (MF(E)):** Professionalization, specialized tools, "we have doctrine now"
+- **Act III (Pā 596):** Mastery and desperation, "everything we learned, final stand"
+- **Act IV (Dunwich):** Resolution and uncertainty, "maybe offensive for once, maybe answers"
+
+### Act I: Goa (1954)
+
+**Premise:** Portuguese colonial garrison + local militia facing first major Menace-class incursion.
+
+**Player Forces:**
+- Mixed Portuguese colonial troops (low morale, mixed equipment)
+- Local militia (enthusiastic but untrained)
+- Small British advisory contingent
+- WWII surplus equipment
+- No specialized anti-kaiju weapons
+
+**Missions:**
+1. **First Contact** - Patrol encounters Taniwha-class. Tutorial for basic controls, morale, retreat.
+2. **The Evacuation** - Protect civilians evacuating Old Goa. Introduction to environmental destruction.
+3. **Fort Aguada** - Defensive stand at colonial fort. Learning importance of prepared positions.
+4. **The Menace** - Menace-class emerges. This is unwinnable. Survive X turns for extraction.
+5. **Aftermath** - Coordinate rescue operations in ruins. Non-combat mission, exploring destroyed terrain.
+
+**Narrative Themes:**
+- Colonial system collapsing under pressure
+- Improvisation and desperation
+- Cultural tensions (Portuguese/British/local) subordinate to survival
+- First attempts at doctrine formation
+- Loss and learning
+
+**Mechanical Introduction:**
+- Basic unit control and line-of-sight
+- Morale and panic mechanics
+- Cover and elevation
+- Equipment degradation (vehicles break, ammo runs out)
+- Mission objectives beyond "kill everything"
+
+### Act II: Mobile Force (Experimental) (1956-1959)
+
+**Premise:** Play as MF(E)-1BG conducting operations in Southeast Asia and Pacific.
+
+**Player Forces:**
+- Specialized anti-kaiju unit
+- Purpose-built equipment
+- Scientific advisory team
+- Combined arms doctrine
+- Good intelligence support
+
+**Mission Types:**
+- **Hunter-Killer:** Seek and destroy specific Taniwha-class
+- **Reconnaissance:** Gather intel on new kaiju types
+- **Defense:** Hold position against waves
+- **Extraction:** Rescue downed pilots, stranded scientists
+- **Coordination:** Work with local forces (variable quality)
+
+**Narrative Themes:**
+- Professionalization of monster-hunting
+- Cultural identity (British traditions vs pragmatic ANZAC influence)
+- Scientific method applied to horror
+- Inter-unit rivalry with US forces
+- Political pressure and resource constraints
+
+**Mechanical Development:**
+- Veteran units with bonuses/trauma
+- Specialist ammunition and equipment
+- Call-in support (artillery, air strikes, limited nuclear)
+- Multi-mission campaigns with persistent force
+- Base management between missions
+
+### Act III: Pā 596 (1961-1962)
+
+**Premise:** Final defensive line in Southern Alps, New Zealand. Everything learned, nowhere left to run.
+
+**Player Forces:**
+- Combined MF(E), NZDF, and allied contingents
+- Best equipment available
+- Prepared defenses (player helped design them)
+- Full combined arms capability
+- But: stretched thin, exhausted, outnumbered
+
+**The Situation:**
+- Multiple Menace-class emerging
+- Campaign-class sighted (Beta)
+- Civilian population behind your lines
+- Political pressure for victory (not just survival)
+- Resources dwindling
+
+**Missions:**
+- **The Approach:** Delaying actions in foothills
+- **First Line:** Defense of outer fortifications
+- **Strategic Decision:** Choose which positions to hold, which to abandon
+- **The Breach:** Something gets through. Desperate counter-attack.
+- **Final Stand:** Pā 596 itself. Hold or die.
+
+**Narrative Themes:**
+- Everything learned being tested
+- Sacrifice and cost
+- Civilians vs military objectives
+- Moral weight of command decisions
+- Final stands and pyrrhic victories
+
+**Mechanical Culmination:**
+- All systems integrated
+- Large-scale battles
+- Strategic layer decisions matter
+- Multiple objectives, hard choices
+- No right answers, only acceptable losses
+
+### Act IV: Dunwich (1963) [Epilogue]
+
+**Premise:** Post-Pā 596. Intel suggests Deep One emergence site near Lovecraft's Dunwich, Massachusetts. Maybe offensive operation for once.
+
+**Tone:**
+- Different from rest of game
+- Smaller scale, elite forces only
+- Spec-ops feel
+- Mystery and investigation
+- Ambiguous victory conditions
+
+**Purpose:**
+- Narrative closure (or opening for sequel)
+- Reward player with offensive capability
+- Explore Deep One facilities
+- Setup for The Compact negotiations
+- Leave questions unanswered
+
+**Mechanical Shift:**
+- Stealth and infiltration options
+- Non-combat puzzle elements
+- Choices that affect Compact terms (doesn't change that it happens, but affects how)
+- Multiple endings based on approach
+
+---
+
+<a name="gameplay"></a>
+## 7. Core Gameplay Systems
+
+### Unit Morale & Trauma
+
+**Morale States:**
+- **Steady:** Normal performance
+- **Shaken:** -20% combat effectiveness, may hesitate
+- **Panicked:** 50% chance to ignore orders, may flee
+- **Broken:** Unit routs, cannot be controlled until rallied
+
+**Morale Factors:**
+- Proximity to kaiju (worse for larger classes)
+- Casualties taken
+- Casualties witnessed
+- Duration of engagement
+- Leadership quality
+- Unit experience
+- Environmental factors (night, fog, rain)
+
+**Trauma System:**
+- Units that survive encounters gain experience bonuses
+- But also accumulate trauma
+- Trauma can manifest as:
+  - Reduced maximum morale
+  - Specific phobias (refuse to engage certain kaiju types)
+  - "Monster-hardened" (bonus against fear, penalty to social skills)
+  - Unpredictable behavior (sudden panic, sudden aggression)
+
+**Recovery:**
+- Rest and rotation (mission design must allow this)
+- Medical treatment (limited)
+- Replacement troops (untrained but fresh)
+- Choice: rotate experienced traumatized troops or commit green reserves?
+
+### Equipment Degradation
+
+**Vehicle Systems:**
+- **Optics:** Reduced view range and accuracy
+- **Engine:** Reduced speed and maneuverability
+- **Tracks/Wheels:** Immobilization risk
+- **Weapons:** Reduced rate of fire, accuracy
+- **Communications:** Isolated from command network
+
+**Progressive Failure:**
+- Light damage: -10% performance
+- Moderate: -30%, risk of critical failure
+- Heavy: -60%, major systems offline
+- Critical: Immobilized, weapon jammed, crew bailing
+
+**Repair:**
+- Field repairs: Restore partial functionality (takes time, requires supply)
+- Workshop repairs: Full restoration (requires returning to base)
+- Salvage: Cannibalize destroyed vehicles for parts
+- Choice: Commit damaged unit or hold back?
+
+### Ammo & Logistics
+
+**Ammunition Types:**
+- **Standard:** Always available but least effective
+- **AP (Armor-Piercing):** Limited supply, essential for Taniwha-class+
+- **Incendiary:** Area effect, good against Hound-class swarms
+- **Experimental:** Sonic, chemical, radioactive - very limited, unpredictable
+- **Nuclear:** Strategic weapons, very limited, massive collateral
+
+**Supply System:**
+- Units track ammunition by type
+- Must be resupplied from supply trucks or depots
+- Supply vehicles vulnerable targets
+- Running out mid-battle is disaster
+- Mission planning must account for logistics
+
+**Resource Scarcity:**
+- Between missions: allocate limited supplies
+- Prioritize units or spread thin?
+- Save experimental weapons for emergencies?
+- Political pressure to "save money" vs military necessity
+
+### Line of Sight & Communication
+
+**LOS System:**
+- Terrain blocks vision (elevation, buildings, forests)
+- Units can only engage what they see
+- Fog of war is real (no omniscient player view)
+- Kaiju sometimes visible at distance (Campaign-class), sometimes hidden (Hound-class ambush)
+
+**Communications:**
+- Units must be in radio contact to coordinate
+- Radio vehicles extend command range
+- Jamming (both ways - kaiju can emit interference)
+- Loss of communication = units act on last orders + AI
+- Historical comms limitations (1950s technology)
+
+### Environmental Destruction
+
+**Persistent Damage:**
+- Destroyed buildings stay destroyed
+- Craters remain
+- Fires spread
+- Bodies remain (morale impact)
+- Next mission on same map shows damage
+
+**Tactical Implications:**
+- Destroying buildings creates rubble (new cover, blocks movement)
+- Craters block vehicles
+- Fires deny area, create smoke (blocks LOS)
+- Civilian casualties have political cost
+- Do you destroy the town to save it?
+
+### Mission Objectives & Victory Conditions
+
+**Not Always "Kill Everything":**
+- **Survive X Turns:** Hold position until extraction
+- **Evacuate Civilians:** Protect retreat to safe zone
+- **Delay Enemy:** Slow advance, accept losses
+- **Gather Intel:** Get close enough to identify, then withdraw
+- **Lure Enemy:** Draw kaiju into prepared killzone
+- **Recover Assets:** Extract scientists, salvage tech
+
+**Failure Conditions:**
+- Mission objectives failed
+- Casualties exceed acceptable threshold
+- Key units destroyed
+- Commander killed/incapacitated
+- Time limit exceeded
+
+**Success Gradients:**
+- **Decisive Victory:** Objectives achieved, minimal casualties
+- **Tactical Victory:** Objectives achieved, acceptable losses
+- **Pyrrhic Victory:** Objectives achieved, heavy casualties
+- **Strategic Withdrawal:** Objectives failed, force preserved
+- **Defeat:** Objectives failed, heavy casualties
+
+### After-Action Reports
+
+**Function:**
+- Narrative delivery mechanism
+- Bureaucratic horror tone
+- Unit progression tracking
+- Resource allocation
+- Political pressure visualization
+
+**Format:**
+```
+MOST SECRET - COSMIC
+AFTER ACTION REPORT: OPERATION COPPER HARVEST
+DATE: 14 March 1959
+COMMANDING: LT COL McKENZIE, I.D. "BONZER"
+
+SUMMARY:
+Objectives partially achieved. Enemy Type-T17 neutralized
+with loss of two (2) Centurion tanks, one (1) AVRE, and
+forty-seven (47) personnel. Civilian casualties: four hundred 
+and twelve (412) confirmed, estimated two hundred (200) 
+additional missing.
+
+A Squadron requests rotation. Combat effectiveness assessed
+at 60%. Morale concerns noted. Recommend immediate replacement
+of casualties and two (2) weeks rest before next deployment.
+
+Request DENIED. Political situation requires immediate
+redeployment. Replacement personnel attached. Make do.
+
+[Handwritten note in margin: "Make do." They always say make do.]
+```
+
+**Content:**
+- Dry bureaucratic language
+- Horror revealed through euphemism
+- Unit status updates
+- Command decisions and consequences
+- Political pressure mounting over time
+
+---
+
+<a name="technology"></a>
+## 8. Technology & Equipment
+
+### Technological Development Philosophy
+
+**Accelerated But Grounded:**
+- Transistor revolution (1948) leads to faster miniaturization
+- Military R&D prioritizes kaiju-hunting over ICBMs
+- Lots of experimental dead-ends
+- Successful tech spreads rapidly (existential threat focuses minds)
+- By 1970: significantly ahead of our timeline in specific areas
+
+**Areas of Acceleration:**
+- Communications (essential for coordination)
+- Directed energy weapons (vehicle-mounted particle beams, experimental)
+- Materials science (armor, structures)
+- Computing (fire control, logistics, cryptanalysis)
+- Biological/chemical (understanding kaiju biology)
+
+**Areas of Stagnation:**
+- Space race (less relevant)
+- Consumer goods (wartime economy)
+- Civil infrastructure (everything goes to defense)
+
+### Weapons & Equipment (1950s Era)
+
+**Standard Anti-Kaiju Kit:**
+
+**Infantry:**
+- Recoilless rifles (M20 75mm, 106mm variants)
+- Flamethrowers (effective against Hound-class)
+- Shaped-charge weapons (PIAT, bazooka, early HEAT rounds)
+- Experimental sonic grenades (unreliable, hurt humans too)
+- WP (white phosphorus) for area denial
+
+**Armor:**
+- Centurion Mk.3 with tungsten APDS (UK standard)
+- M46 Patton with experimental ammunition (US standard)
+- T95 Super Heavy (2 prototypes, both with Task Force CRYPTIC)
+- Modified Churchill AVRE for close assault
+- Experimental composite armor (limited availability)
+
+**Artillery:**
+- 155mm howitzers for indirect fire
+- Chemical rounds (various experimental agents)
+- Smoke and illumination
+- Nuclear-tipped shells (strategic reserve)
+
+**Aircraft:**
+- Ground attack: Hawker Hunter, F-86 Sabre
+- Heavy bomber: Canberra, B-47
+- Napalm effective against Hound/small Taniwha
+- Tactical nuclear delivery (last resort)
+
+**Experimental/Prototype:**
+- **Railguns:** Twin-vehicle setup with superconducting umbilical. High penetration, temperamental, ridiculous logistical requirements. Multiple experimental units fielded, codenamed MULE and SLING. MULE reactor vehicle used to power a number of systems.
+- **Particle Cannons:** Mercury ion pulse weapons (inspired by Battletech PPC). Vehicle-mounted. Explosive charge pumps a magnetic flux which accelerates mercury ions. Massive magnetic field can cause somatic effects in operators. Overheating issues. Maybe 20 systems fielded by 1965.
+- **Sonic Weapons:** Various attempts at weaponized sound. Most hurt humans as much as kaiju. Some success with high-frequency directed energy. Still experimental in 1962.
+- **Biological Agents:** Chemical warfare adapted for kaiju. Nerve agents sometimes work, sometimes enrage. Ethical concerns. Limited deployment. Fluorine effective against the highly calcified kaiju.
+
+### Technology in 1970+ (Post-Compact)
+
+**Mature Technologies:**
+- High-speed rail networks (troop movement, evacuation)
+- Particle beam weapons (now standard on heavy vehicles)
+- Advanced computing (distributed networks, early internet for military)
+- Composite armor (standard on new builds)
+- Fortification engineering (lessons from Pā 596)
+
+**New Developments:**
+- Deep One technology salvage (barely understood, barely works)
+- "The Cancer" medical technology (excise without killing host)
+- Detection systems for Deep One activity
+- Gibraltar/Suez sealing technology (experimental megastructures)
+
+**Still Don't Have:**
+- Rocketry/space (not priority, far behind our timeline)
+- Consumer electronics (military only)
+- Medical advances except kaiju-related
+- Many civilian technologies we take for granted
+
+---
+
+<a name="post-war"></a>
+## 9. The World in 1970
+
+### Political Landscape
+
+**Mediterranean Compact Zone:**
+- Gibraltar sealed with massive walls and naval patrols
+- Suez sealed similarly
+- North African nations independent but integrated into defense grid
+- Joint NATO-Warsaw garrison forces
+- Mediterranean itself mostly evacuated
+- Fishing rights traded like currency
+- "Cultural exchange" tourism to sealed zones (morbid)
+
+**Changed Nations:**
+
+**Straits Federation** (Singapore/Malaysia/Brunei)
+- Led by General Lee Kuan Yew (never gave up military command)
+- Highly militarized but prosperous
+- Major port for Pacific trade (Suez closure changed everything)
+- Excellent kaiju detection systems (exports worldwide)
+
+**Indonesia** (Fragmented)
+- Three successor states after collapse during kaiju wars
+- Java Republic, Sumatra Federation, Eastern Alliance
+- Ongoing tensions, occasional cooperation against threats
+- Major source of refugees
+
+**Gaza Protectorate**
+- UN anarcho-capitalist experiment (everyone wants out)
+- Produces best kaiju detection gear (necessity + capitalism)
+- Technically independent, effectively international R&D zone
+- Ethically questionable experiments (no oversight)
+- Surprising stability (profit motive transcends politics)
+
+**Portugal**
+- Lost all colonies early (too weak to hold during chaos)
+- Goa annihilated 1954 (India annexed remains)
+- Angola/Mozambique independent early
+- Domestic fascism ended during crisis
+- Now minor European power, bitter about losses
+
+**China** (Unified by Necessity)
+- CCP victorious but changed by cooperation with Nationalists against kaiju
+- Sino-Soviet split deeper (mutual suspicion over Shandong)
+- Taiwan de facto independent (Deep Ones avoid deep water, created safe zone)
+- Mass conscription culture normalized
+- Enormous casualties, rebuilt quickly
+
+### Sealed Territories
+
+**Antarctica - "White Dead Zone":**
+- Entirely ceded to Deep Ones per Compact
+- All bases evacuated 1969-1970
+- Scientific equipment abandoned
+- Occasional satellite surveillance (treaty allows)
+- Rumors of Deep One structures visible from orbit
+- No human return expected
+
+**Cook Islands - Deep One Research Station:**
+- Population evacuated, compensated
+- Now Deep One above-water facility
+- Purpose unknown
+- Human ships approach at risk
+- Occasional "invitations" for human scientists (few return, those who do are changed)
+
+**Okinawa - Cultural Exchange Zone:**
+- US base remains but downsized
+- Joint human-Deep One "embassy"
+- Carefully controlled contact
+- Intelligence gathering disguised as diplomacy
+- Eeriest place on Earth (both sides watching each other)
+
+### The Cancer Economy
+
+**Production:**
+- Voluntary infection initially (desperate for money)
+- Some nations make involuntary (prisoners, dissidents)
+- Medical districts like company towns
+- Entire economies built around harvest/excision
+- 5-20 year infection cycle typical
+- Excruciatingly painful (palliative care major industry)
+
+**Products:**
+- Platinum, gold, rare earth pearls
+- Atom-by-atom purity (valuable for electronics)
+- Tithed to Deep Ones per capita quotas
+- Surplus enters black market
+- Counterfeit pearls (death penalty in most nations)
+- Body part trafficking (infected organs worth fortune)
+
+**Social Impact:**
+- "Cancer volunteers" viewed as heroes or fools
+- Medical tourism to "infection clinics"
+- New class: "the Afflicted"
+- Political movements: Cancer Rights, End the Tribute
+- Some seek infection for wealth, others to avoid it at all costs
+- Generational trauma: children of Afflicted often Afflicted
+
+### Society & Culture
+
+**Militarization:**
+- Permanent wartime footing (Compact or no Compact)
+- Universal conscription in most nations
+- Civil defense drills routine
+- Fortification architecture standard
+- Bunkers in every building code
+
+**Surveillance State:**
+- Monitoring for Deep One activity
+- Political paranoia (are they infiltrating?)
+- Advanced computer networks for detection
+- Privacy eroded for security
+- Resistance movements growing
+
+**Information Control:**
+- War censorship never lifted
+- Media heavily controlled (officially "for security")
+- Samizdat networks distributing truth
+- Conspiracy theories (some true)
+- Generation gap: those who remember vs those who only know this
+
+**Arts & Culture:**
+- Apocalyptic literature/film boom
+- "Mondter Fuckers" subculture (dark humor, tattoos, music)
+- Brutalist architecture dominant (function over form, fortification aesthetic)
+- Rejection of pre-war optimism
+- New religions (some worship Deep Ones, some apocalyptic Christianity/Islam)
+
+**Technological Divide:**
+- Military tech advanced, civilian stagnant
+- Dual-use tech restricted (computing, comms, materials)
+- Black market for military surplus
+- Haves (connected to military-industrial complex) vs have-nots
+
+---
+
+<a name="future"></a>
+## 10. Sequel Hooks & Future Concepts
+
+### Yithian Threat (Potential Sequel)
+
+**Setup:**
+- Yithians (Great Race from Lovecraft) exist in this timeline
+- Time-manipulation beings seeking strategic advantage
+- View human-Deep One Compact as opportunity
+
+**The Europa Launch:**
+- Yithians control/breed/generate vessel near Jupiter's moon Europa
+- Launch toward Earth (years of travel)
+- Potential breach of Compact with Deep Ones
+- Deep Ones stalemated by humanity, other Mythos races see weakness
+
+**Strategic Situation:**
+- By late 1960s, human weapons evolved significantly
+- Bomb-pumped lasers (theoretical)
+- Nuclear pulse propulsion (Orion project)
+- Nuclear thermal rockets (NERVA)
+- Nuclear saltwater rockets (insane but possible)
+
+**Gameplay Shift:**
+- Space combat? Orbital defense?
+- Time manipulation mechanics?
+- Three-way conflict: Humans vs Deep Ones vs Yithians?
+- Political: maintain Compact or exploit chaos?
+
+**Themes:**
+- Humanity as spacefaring species (forced by threat)
+- Deep Ones as... allies? Enemy of my enemy?
+- Cosmic horror escalation
+- Is anywhere safe?
+
+### Other Hooks
+
+**The Dunwich Facility:**
+- What did players find in Act IV?
+- Deep One breeding programs?
+- Ancient technology?
+- Portal to other dimensions?
+- Remains unexplained, player imagination fills gaps
+
+**The Compact Unravels:**
+- What if Deep Ones break treaty?
+- What if humans break treaty?
+- Factions on both sides wanting war
+- Political thriller in post-apocalyptic setting
+
+**Other Mythos Entities:**
+- Shoggoths (Arctic? Antarctic?)
+- Mi-Go (Himalayas? Andes?)
+- Fungi from Yuggoth
+- Each requires different response
+
+**Human Faction Conflicts:**
+- NATO vs Warsaw Pact tensions remain
+- Resource conflicts over Cancer production
+- Some nations want to renegotiate Compact
+- Independence movements in occupied territories
+
+**Technological Singularity:**
+- Accelerated computing development
+- Early AI (1970s instead of 2000s)
+- What if AI could fight kaiju?
+- What if AI sides with Deep Ones?
+
+---
+
+<a name="llm-integration"></a>
+## 11. LLM Integration Ideas
+
+### Design Philosophy for LLM Use
+
+**Core Principle:** LLMs interpret and voice the game, they don't *run* the game. Keep simulation authoritative. Use LLMs for what they're good at: making structured information feel alive. Note: LLM integration is low priority consideration. Build game systems first.
+
+### 1. The Constrained Oracle
+
+**Concept:** NPC oracle/intelligence officer who provides cryptic insights.
+
+**Implementation:**
+- Feed LLM mission context, enemy types, terrain
+- Ask for "intelligence briefing" or "tactical advice"
+- Constrain output format (must be brief, military language)
+- Can be wrong (unreliable narrator)
+- Personality: nervous analyst, grizzled veteran, conspiracy theorist
+
+**Gameplay Value:**
+- Player feels like they're getting intel from real person
+- Adds uncertainty (is this accurate?)
+- Emergent narrative from interaction
+- Replayability (different advice each time)
+
+### 2. After-Action Report Generation
+
+**Concept:** LLM reads simulation results and writes bureaucratic horror report.
+
+**Implementation:**
+- Simulation tracks everything that happened
+- Feed structured data to LLM:
+  - Unit movements and casualties
+  - Engagement outcomes
+  - Environmental destruction
+  - Mission objectives status
+- LLM generates report in specific style:
+  - Dry bureaucratic language
+  - Euphemisms for horror
+  - Political pressure notes
+  - Handwritten margin notes
+
+**Example Output:**
+```
+MOST SECRET - COSMIC
+AFTER ACTION REPORT: OPERATION COPPER HARVEST
+
+SUMMARY:
+Target neutralized. Acceptable losses. Civilian casualties
+within predicted parameters. Unit requests rotation.
+Request DENIED.
+
+[Margin note: "Private Morrison refused to advance after 
+the Scissorman took Henderson. He spent the rest behind 
+the halftrack. He's requesting transfer. Recommend approval."]
+```
+
+**Gameplay Value:**
+- Narrative delivery that feels real
+- Makes player decisions feel weighted
+- Shows progression of political pressure
+- Unit personality emerges from repeated reports
+
+### 3. The Editorial Board (Multi-LLM Synthesis)
+
+**Concept:** Simulate internal debate using multiple LLM prompts.
+
+**Implementation:**
+- Different prompts for different "advisors"
+- Prompt A: "You are cautious. Emphasize risks."
+- Prompt B: "You are aggressive. Emphasize opportunities."
+- Prompt C: "You are scientific. Emphasize unknowns."
+- Combine outputs into coherent briefing
+
+**Gameplay Value:**
+- Shows complexity of decision-making
+- Player sees multiple perspectives
+- Feels like real military staff meeting
+- Different advisors can be right in different situations
+
+### 4. Trauma Dialogue System
+
+**Concept:** NPCs describe experiences based on what actually happened to them in simulation.
+
+**Implementation:**
+- Track what each unit experienced:
+  - Kaiju types encountered
+  - Casualties witnessed
+  - Near-death experiences
+  - Mission outcomes
+- Feed to LLM with personality constraints
+- Generate dialogue that feels authentic
+
+**Example:**
+```
+Simulation: Unit "Baker-3" witnessed Scissorman kill squad leader,
+took 40% casualties, held position for 2 hours, mission success.
+
+LLM Output (veteran sergeant): "Yeah, we held. Lost Thompson to 
+that fucking Scissorman. Just... *click* and he's gone. The boys 
+did their job though. They always do."
+```
+
+**Gameplay Value:**
+- Units feel like people, not statistics
+- Trauma system becomes narrative
+- Player cares about preservation
+- Emergent storytelling
+
+### 5. Dynamic Mission Briefings
+
+**Concept:** Mission briefings that respond to campaign state.
+
+**Implementation:**
+- Feed LLM:
+  - Current strategic situation
+  - Player's recent performance
+  - Available resources
+  - Enemy activity
+- Generate briefing that feels contextual
+- Include: objectives, intel, commander's concerns, political pressure
+
+**Gameplay Value:**
+- Each mission feels part of larger campaign
+- Political/strategic context clear
+- Personality of command structure emerges
+- Increased immersion
+
+### 6. Kaiju Behavior Narration
+
+**Concept:** LLM narrates kaiju actions in evocative language.
+
+**Implementation:**
+- Simulation determines kaiju behavior mechanically
+- LLM describes it poetically/horrifically
+- "The Taniwha circles the building, acid dripping from its maw"
+- "Something moves in the treeline. Your men freeze."
+
+**Gameplay Value:**
+- Mechanical actions feel scary
+- Ambiguity increases tension
+- Literary quality without sacrificing gameplay
+- Can hint at things player can't see yet
+
+### Technical Considerations
+
+**Latency:**
+- Pre-generate where possible
+- Cache common outputs
+- Only use LLM for unique situations
+- Have fallback non-LLM text
+
+**Consistency:**
+- Track conversation history
+- Reference previous outputs
+- Maintain character voice
+- Avoid contradictions
+
+**Cost:**
+- Only call LLM when adds value
+- Batch requests where possible
+- Use smaller models for simple tasks
+- Consider offline models for release
+
+**Player Control:**
+- Option to disable LLM features
+- Toggle between generated and static text
+- Don't make LLM mandatory for gameplay
+- Graceful degradation if LLM fails
+
+---
+
+<a name="philosophy"></a>
+## 12. Design Philosophy & Ludonarrative Coherence
+
+### Core Tenets
+
+**1. Every Mechanic Tells the Story**
+
+The game's systems should communicate the themes through gameplay, not cutscenes or dialogue.
+
+- **Morale system** → Horror and human fragility
+- **Equipment degradation** → War of attrition, unsustainable
+- **Logistics** → Desperation and scarcity
+- **Persistent damage** → Permanent cost of violence
+- **Trauma** → Psychological reality of combat
+- **Objectives beyond killing** → War is more than body counts
+
+**2. Respect Player Intelligence**
+
+Don't explain everything. Let players figure things out. Trust them to understand themes through mechanics.
+
+- Show don't tell
+- Provide tools, not solutions
+- Multiple valid approaches
+- Let players make bad decisions (and learn from them)
+
+**3. Bureaucratic Horror**
+
+The tone is dry, administrative, procedural. Horror emerges from mundanity.
+
+- After-action reports, not dramatic narration
+- Statistics and casualties, not gore
+- Political pressure through memos, not cutscenes
+- System complicity shown through paperwork
+
+**4. No Power Fantasy**
+
+This is not about becoming powerful. This is about desperate competence against impossible odds.
+
+- Units don't level up infinitely
+- Best troops are traumatized troops
+- Technology helps but doesn't solve problems
+- Victory is often "survived" not "won"
+
+**5. Environmental Storytelling**
+
+The world tells the story. Maps, ruins, abandoned equipment.
+
+- Persistent damage shows cost
+- Civilian areas vs military zones
+- Destroyed units remain on battlefield
+- Environmental changes tell narrative
+
+### What This Game Is About
+
+**Thematically:**
+- Cost of war
+- Human adaptability and resilience
+- Bureaucracy's dehumanization
+- Trauma and recovery
+- Collective action against existential threat
+- Moral weight of command
+
+**Mechanically:**
+- Resource management under pressure
+- Risk assessment and mitigation
+- Combined arms tactics
+- Imperfect information
+- Long-term consequences of short-term decisions
+
+**Emotionally:**
+- Tension and release
+- Pride in competence
+- Grief over losses
+- Dark humor as coping mechanism
+- Occasional hope despite odds
+
+### What This Game Is NOT About
+
+- Individual heroism
+- Becoming godlike
+- Simple good vs evil
+- Clean victories
+- Reversible decisions
+- Comforting answers
+
+### Ludonarrative Coherence Checklist
+
+When designing any system, ask:
+
+1. **Does this mechanic support the theme?**
+   - If not, cut it or change it.
+
+2. **Does this feel true to the setting?**
+   - Would 1950s military actually do this?
+   - Does the technology fit?
+
+3. **Does this create interesting decisions?**
+   - Not just hard, but meaningful
+   - Multiple valid approaches
+
+4. **Does this respect the player?**
+   - Not punishing for experimentation
+   - Not holding hands
+   - Clear feedback
+
+5. **Does this serve the tone?**
+   - Bureaucratic horror, not jump scares
+   - Grim, not edgy
+   - Dark humor, not jokes
+
+### Success Metrics
+
+The game succeeds if players:
+- Feel clever when they win
+- Feel grief when units die
+- Make hard choices willingly
+- Talk about "their" battle stories
+- Respect the enemy (kaiju are threats, not punching bags)
+- Understand themes without explicit explanation
+
+The game fails if players:
+- Feel like they're grinding numbers
+- Min-max without narrative consideration
+- View units as disposable resources
+- Get bored during successful missions
+- Need cutscenes to understand what's happening
+- Feel the game is "unfair" vs "hard but fair"
+
+---
+
+## Appendices
+
+### A. Useful References
+
+**Games:**
+- Close Combat series (especially: A Bridge Too Far)
+- XCOM series (especially: Enemy Unknown/Within)
+- Combat Mission series
+- Frozen Synapse (IGOUGO tactics)
+- Door Kickers (real-time tactics)
+
+**Books:**
+- Alastair Reynolds: *Revelation Space* series (grounded sci-fi horror)
+- Max Brooks: *World War Z* (documentary war horror)
+- Charles Stross: *The Laundry Files* (bureaucratic cosmic horror)
+- David Drake: *Hammer's Slammers* (military sci-fi, realistic)
+
+**Film/TV:**
+- *The Thing* (1982) - Isolation, paranoia, biological horror
+- *Black Hawk Down* - Realistic modern combat
+- *Chernobyl* (HBO) - Bureaucratic horror, cost of heroism
+
+**Historical:**
+- Max Hastings: *The Korean War*
+- Antony Beevor: *Stalingrad*
+- Various memoirs of WWII veterans (for tone and language)
+
+### B. Glossary of Terms
+
+**APDS:** Armor-Piercing Discarding Sabot (tungsten penetrator)
+**AVRE:** Armored Vehicle Royal Engineers
+**The Black Chamber:** US cryptanalysis organization (historical, resurrected in this timeline)
+**The Compact:** 1969 treaty between humans and Deep Ones
+**Campaign-Class:** Colossal kaiju requiring strategic weapons
+**DSO:** Distinguished Service Order (British military decoration)
+**FASIC:** Fasciculation Anxiety Syndrome In Clinicians (joke about nervous doctors)
+**HEAT:** High-Explosive Anti-Tank
+**Hound-Class:** Squad-scale kaiju (dog to elk-sized)
+**LOS:** Line of Sight
+**Menace-Class:** Company to battalion-level threats (tank to house-sized)
+**MF(E):** Mobile Force (Experimental)
+**Taniwha:** Māori term for monster/dragon (adopted for classification)
+**Taniwha-Class:** Platoon-level threats (rhino to bus-sized)
+**WP:** White Phosphorus
+
+### C. Development Notes
+
+**Current Status:** Pre-production, design phase
+**Engine:** Godot 4.2
+**Target Platform:** PC (Windows/Linux)
+**Scope:** Learning project, modular systems
+**Timeline:** Incremental, no hard deadlines
+
+**Next Steps:**
+1. Finish monster taxonomy (naming revision needed)
+2. Prototype core movement and LOS
+3. Build one complete mission to test systems
+4. Iterate based on playtesting
+
+**Things to Figure Out:**
+- Exact morale calculation (too punishing vs too lenient?)
+- Balance of player control vs unit AI
+- How much micro-management is fun vs tedious?
+- Tutorial that doesn't kill pacing
+- Save system for campaign
+- Mod support?
+
+---
+
+*"We need you to finish dying. But in the right way. In a way that helps."*
+
+*— Mayor Harlan Duchesne, from Max Brooks' 'Devolution: A Firsthand Account of the Rainier Sasquatch Massacre'*
+
+---
+
+END OF MASTER REFERENCE DOCUMENT

@@ -1,0 +1,7 @@
+{
+  "required": ["display_name", "role", "primary_weapon", "base_stats"],
+  "known_keys": [
+    "display_name", "role", "primary_weapon", "secondary_weapon",
+    "grenades", "base_stats", "detection_profile"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "rifleman_base": {
+    "display_name": "Rifleman",
+    "role": "rifleman",
+    "primary_weapon": "lee_enfield",
+    "secondary_weapon": null,
+    "grenades": 2,
+    "base_stats": {
+      "marksmanship": 50,
+      "fitness": 50,
+      "morale": 50,
+      "experience": 0
+    },
+    "detection_profile": {
+      "visual_signature": 1.0,
+      "thermal_signature": 1.0,
+      "noise_signature": 1.0,
+      "seismic_signature": 0.3
+    }
+  },
+  "nco_base": {
+    "display_name": "Corporal",
+    "role": "nco",
+    "primary_weapon": "sten_mkii",
+    "secondary_weapon": null,
+    "grenades": 2,
+    "base_stats": {
+      "marksmanship": 55,
+      "fitness": 55,
+      "morale": 60,
+      "experience": 20,
+      "leadership": 40
+    },
+    "detection_profile": {
+      "visual_signature": 1.0,
+      "thermal_signature": 1.0,
+      "noise_signature": 1.2,
+      "seismic_signature": 0.3
+    }
+  },
+  "gunner_base": {
+    "display_name": "Gunner",
+    "role": "support",
+    "primary_weapon": "bren_lmg",
+    "secondary_weapon": "webley_revolver",
+    "grenades": 1,
+    "base_stats": {
+      "marksmanship": 50,
+      "fitness": 60,
+      "morale": 50,
+      "experience": 10
+    },
+    "detection_profile": {
+      "visual_signature": 1.2,
+      "thermal_signature": 1.0,
+      "noise_signature": 1.0,
+      "seismic_signature": 0.4
+    }
+  }
+}

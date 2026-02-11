@@ -1,0 +1,52 @@
+{
+  "lee_enfield": {
+    "display_name": "Lee-Enfield No.4 Mk I",
+    "type": "rifle",
+    "caliber": "7.7mm",
+    "magazine_size": 10,
+    "rate_of_fire": 0.5,
+    "base_accuracy": 0.7,
+    "effective_range": 500,
+    "maximum_range": 800,
+    "damage": {
+      "base": 45,
+      "penetration": 12
+    },
+    "noise_radius": 200,
+    "weight_kg": 4.1
+  },
+  "sten_mkii": {
+    "display_name": "Sten Mk II",
+    "type": "smg",
+    "caliber": "9mm",
+    "magazine_size": 32,
+    "rate_of_fire": 8.3,
+    "base_accuracy": 0.4,
+    "effective_range": 100,
+    "maximum_range": 200,
+    "damage": {
+      "base": 28,
+      "penetration": 6
+    },
+    "noise_radius": 150,
+    "weight_kg": 3.2
+  },
+  "bren_lmg": {
+    "display_name": "Bren Light Machine Gun",
+    "type": "lmg",
+    "caliber": "7.7mm",
+    "magazine_size": 30,
+    "rate_of_fire": 8.3,
+    "base_accuracy": 0.55,
+    "effective_range": 600,
+    "maximum_range": 1000,
+    "damage": {
+      "base": 48,
+      "penetration": 14
+    },
+    "noise_radius": 250,
+    "suppression_factor": 1.5,
+    "weight_kg": 10.0,
+    "requires_setup": true
+  }
+}

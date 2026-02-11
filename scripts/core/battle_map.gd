@@ -14,20 +14,6 @@ const CELL_SIZE := 32  # pixels per cell
 const DEFAULT_WIDTH := 40
 const DEFAULT_HEIGHT := 30
 
-# Terrain type colors - deliberately ugly placeholder palette
-# We'll know it works BECAUSE it's ugly
-const TERRAIN_COLORS := {
-	"open": Color(0.45, 0.55, 0.35),      # Olive drab - open ground
-	"road": Color(0.55, 0.50, 0.40),       # Dusty tan - roads
-	"rough": Color(0.35, 0.40, 0.25),      # Dark green - rough/bush
-	"water": Color(0.25, 0.35, 0.55),      # Steel blue - water
-	"building": Color(0.50, 0.45, 0.40),   # Concrete grey-brown
-	"impassable": Color(0.30, 0.30, 0.30), # Dark grey - cliffs etc
-}
-
-# Elevation shading - darken low, lighten high
-const ELEVATION_SHADE := 0.06  # per elevation level above/below baseline
-
 # The data
 var terrain: TerrainData = null
 
@@ -86,8 +72,11 @@ func _ready() -> void:
 
 	# Build child node structure for z-ordered rendering
 	# Order matters: terrain below entities below debug overlays
+	var TerrainOverlayScript = load("res://scripts/core/terrain_overlay.gd")
 	terrain_overlay = Node2D.new()
+	terrain_overlay.set_script(TerrainOverlayScript)
 	terrain_overlay.name = "TerrainOverlay"
+	terrain_overlay.battle_manager = self
 	add_child(terrain_overlay)
 
 	entities_node = Node2D.new()
@@ -320,6 +309,7 @@ func _on_hostile_state_changed(entity: Node2D, _old_state: int, _new_state: int)
 		pass  # Already printed by hound.gd itself
 
 func _on_terrain_changed() -> void:
+	terrain_overlay.queue_redraw()
 	queue_redraw()
 
 func _process_squad_detection(delta: float) -> void:
@@ -484,6 +474,7 @@ func recalculate_fog() -> void:
 		for cell in visible:
 			fog_visible[cell] = true
 			fog_explored[cell] = true
+	terrain_overlay.queue_redraw()
 	queue_redraw()
 
 func toggle_fog() -> void:
@@ -491,12 +482,13 @@ func toggle_fog() -> void:
 	if fog_enabled:
 		recalculate_fog()
 	print("Fog of war: %s" % ("ON" if fog_enabled else "OFF"))
+	terrain_overlay.queue_redraw()
 	queue_redraw()
 
 # --- Drawing ---
 
 func _draw() -> void:
-	_draw_terrain()
+	# Terrain rendering handled by TerrainOverlay child node
 	if show_los:
 		_draw_los_overlay()
 	if show_grid:
@@ -510,32 +502,6 @@ func _draw() -> void:
 		_draw_path_preview()
 	_draw_hover()
 	_draw_selection()
-
-func _draw_terrain() -> void:
-	for x in range(terrain.width):
-		for y in range(terrain.height):
-			var pos := Vector2i(x, y)
-			var cell = terrain.get_cell(pos)
-			var terrain_type: String = cell.get("terrain_type", "open")
-			var base_color: Color = TERRAIN_COLORS.get(terrain_type, TERRAIN_COLORS["open"])
-
-			# Shade by elevation
-			var elev: int = cell.get("elevation", 1)
-			var shade := (elev - 1) * ELEVATION_SHADE
-			base_color = base_color.lightened(shade) if shade > 0 else base_color.darkened(-shade)
-
-			# Fog of war darkening
-			if fog_enabled:
-				if not fog_explored.has(pos):
-					# Never seen - nearly black
-					base_color = base_color.darkened(0.85)
-				elif not fog_visible.has(pos):
-					# Previously seen but not currently visible - dim
-					base_color = base_color.darkened(0.5)
-				# else: currently visible - full color
-
-			var rect := Rect2(Vector2(x * CELL_SIZE, y * CELL_SIZE), Vector2(CELL_SIZE, CELL_SIZE))
-			draw_rect(rect, base_color)
 
 func _draw_los_overlay() -> void:
 	if los_origin == Vector2i(-1, -1):

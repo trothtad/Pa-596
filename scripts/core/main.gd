@@ -109,9 +109,10 @@ func _on_cell_hovered(pos: Vector2i) -> void:
 	var cover_names = ["None", "Light", "Heavy"]
 	
 	var paint_info := ""
-	if battle_map.brush_mode == battle_map.BrushMode.TERRAIN:
-		paint_info = "  |  TERRAIN BRUSH: %s" % battle_map.paint_terrain
-	elif battle_map.brush_mode == battle_map.BrushMode.ELEVATION:
+	var editor = battle_map.terrain_editor
+	if editor and editor.brush_mode == editor.BrushMode.TERRAIN:
+		paint_info = "  |  TERRAIN BRUSH: %s" % editor.paint_terrain
+	elif editor and editor.brush_mode == editor.BrushMode.ELEVATION:
 		paint_info = "  |  ELEVATION BRUSH (L:raise R:lower)"
 	
 	info_label.text = "(%d, %d) %s  Elev:%d  Cover:%s  Move:%.1f%s" % [

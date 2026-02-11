@@ -70,7 +70,6 @@
 
 **1947** - UK Admiralty observes persistent North Sea anomalies. Formation of investigation committee (later becomes MF(E) nucleus).
 
-Revised Timeline Framework
 Pre-Emergence (1939-1947): Whispers and anomalies
 
 Scattered incidents, mostly covered up or rationalized
@@ -241,7 +240,7 @@ The Deep Ones are *not* Lovecraft's Deep Ones, though the name persists in class
 | **Whistlers** | Mercury ion slingers. Hypervelocity one-shot kill potential, poor reload. "If they miss, you live." | Anti-infantry sniping |
 | **Snatchlings** | Gangly bipeds with long arms. Drag isolated soldiers away. Not deadly alone, terrifying in fog. | Morale weapon, isolation |
 | **Blowcows** | Gassy bloated beasts. Explode when shot. "Shoot one, kill three." | Trap, area denial |
-| **Scissormen** | Two-legged insectile. Razor-jawed. Decapitate sentries cleanly. Silent but quick. | Infiltration, assassination |
+| **Headmen** | Two-legged insectile. Razor-jawed. Decapitate sentries cleanly. Silent but quick. | Infiltration, assassination |
 
 **Gameplay Considerations:**
 - Need to feel threatening without being frustrating
@@ -257,7 +256,7 @@ The Deep Ones are *not* Lovecraft's Deep Ones, though the name persists in class
 | **Copper Dust** | UK | Dense enzyme fog eats unprotected troops. "Rains rust on the bone." |
 | **Dniepr** | RU | IR-invisible wall-shredder. Tires easily. Used in ambush. |
 | **K-A12 "Colossus"** | US | Sonic artillery. Shatters trenches, ruptures lungs. |
-| **Green Wheel** | UK | Rolling armored organism. Weak only from behind. Explodes on death. |
+| **Green Wheel** | UK | Slow moving armored organism. Weak only from behind. Explodes on death. |
 | **Smolensk** | RU | Semi-aquatic. Stalks through river deltas. Drowns squads with water-jets. |
 | **J-88 "Jenny"** | US | Lures troops with mimicked human voices. Acid jets, armored carapace. |
 
@@ -438,7 +437,7 @@ The game's campaign should feel like:
 - **Act III (Pā 596):** Mastery and desperation, "everything we learned, final stand"
 - **Act IV (Dunwich):** Resolution and uncertainty, "maybe offensive for once, maybe answers"
 
-### Act I: Goa (1954)
+### Act I: Goa (1948)
 
 **Premise:** Portuguese colonial garrison + local militia facing first major Menace-class incursion.
 
@@ -470,7 +469,7 @@ The game's campaign should feel like:
 - Equipment degradation (vehicles break, ammo runs out)
 - Mission objectives beyond "kill everything"
 
-### Act II: Mobile Force (Experimental) (1956-1959)
+### Act II: Mobile Force (Experimental) (1949-1952)
 
 **Premise:** Play as MF(E)-1BG conducting operations in Southeast Asia and Pacific.
 
@@ -502,7 +501,7 @@ The game's campaign should feel like:
 - Multi-mission campaigns with persistent force
 - Base management between missions
 
-### Act III: Pā 596 (1961-1962)
+### Act III: Pā 596 (1953-1955)
 
 **Premise:** Final defensive line in Southern Alps, New Zealand. Everything learned, nowhere left to run.
 
@@ -541,7 +540,7 @@ The game's campaign should feel like:
 - Multiple objectives, hard choices
 - No right answers, only acceptable losses
 
-### Act IV: Dunwich (1963) [Epilogue]
+### Act IV: Dunwich (1958) [Epilogue]
 
 **Premise:** Post-Pā 596. Intel suggests Deep One emergence site near Lovecraft's Dunwich, Massachusetts. Maybe offensive operation for once.
 
@@ -798,7 +797,7 @@ redeployment. Replacement personnel attached. Make do.
 
 **Experimental/Prototype:**
 - **Railguns:** Twin-vehicle setup with superconducting umbilical. High penetration, temperamental, ridiculous logistical requirements. Multiple experimental units fielded, codenamed MULE and SLING. MULE reactor vehicle used to power a number of systems.
-- **Particle Cannons:** Mercury ion pulse weapons (inspired by Battletech PPC). Vehicle-mounted. Explosive charge pumps a magnetic flux which accelerates mercury ions. Massive magnetic field can cause somatic effects in operators. Overheating issues. Maybe 20 systems fielded by 1965.
+- **Particle Cannons:** Mercury ion pulse weapons (inspired by Battletech PPC). Vehicle-mounted. Explosive charge pumps a magnetic flux which accelerates mercury ions. Massive magnetic field can cause somatic effects in operators. Overheating issues. Maybe 20 systems fielded by 1958.
 - **Sonic Weapons:** Various attempts at weaponized sound. Most hurt humans as much as kaiju. Some success with high-frequency directed energy. Still experimental in 1962.
 - **Biological Agents:** Chemical warfare adapted for kaiju. Nerve agents sometimes work, sometimes enrage. Ethical concerns. Limited deployment. Fluorine effective against the highly calcified kaiju.
 

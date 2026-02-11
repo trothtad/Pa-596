@@ -120,6 +120,9 @@ func _ready() -> void:
 	if not target_profile:
 		target_profile = DetectionClass.make_hound_target()
 
+	# Connect to TickManager for fixed-rate detection processing
+	TickManager.tick.connect(_on_tick)
+
 func setup(p_name: String, p_grid_pos: Vector2i, p_waypoints: Array[Vector2i]) -> void:
 	entity_name = p_name
 	grid_pos = p_grid_pos
@@ -136,9 +139,6 @@ func _process(delta: float) -> void:
 		return
 	if is_dead:
 		return
-	
-	# Run detection against all known squads
-	_run_detection(delta)
 	
 	# State machine
 	match state:
@@ -165,6 +165,13 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 # --- Detection ---
+
+func _on_tick(_tick_number: int) -> void:
+	"""Detection runs at fixed tick rate, not frame rate."""
+	if is_dead or not battle_map:
+		return
+	var tick_delta := 1.0 / TickManager.BASE_TICKS_PER_SECOND
+	_run_detection(tick_delta)
 
 func _run_detection(delta: float) -> void:
 	"""Check all squads, build/decay detection levels."""

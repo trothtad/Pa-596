@@ -102,6 +102,9 @@ func _ready() -> void:
 	# Set up squad detection
 	squad_observer_profile = DetectionClass.make_human_squad_observer()
 
+	# Connect to TickManager for fixed-rate detection processing
+	TickManager.tick.connect(_on_tick)
+
 	# Spawn entities from Database
 	_spawn_squad_from_database("british_scout_section", Vector2i(5, 10))
 	var patrol_waypoints: Array[Vector2i] = [
@@ -217,8 +220,7 @@ func _process(delta: float) -> void:
 
 		request_redraw()
 
-	# Squad detection of hostiles
-	_process_squad_detection(delta)
+	# Hostile visibility is visual — update every frame
 	_update_hostile_visibility()
 
 	# Brush drag painting
@@ -338,6 +340,11 @@ func _on_hostile_state_changed(entity: Node2D, _old_state: int, _new_state: int)
 
 func _on_terrain_changed() -> void:
 	request_redraw(true)
+
+func _on_tick(_tick_number: int) -> void:
+	"""Detection runs at fixed tick rate (10Hz at 1x speed) not frame rate."""
+	var tick_delta := 1.0 / TickManager.BASE_TICKS_PER_SECOND
+	_process_squad_detection(tick_delta)
 
 func _process_squad_detection(delta: float) -> void:
 	"""Run detection FROM squads TOWARD hostiles."""

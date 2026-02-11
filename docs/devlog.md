@@ -1,5 +1,42 @@
 # Pā 596 - Development Log
 
+## Session: 2026-02-12
+
+### What happened
+- Completed Phase 2 (Extraction) — split battle_map.gd from ~880 lines to 511 lines
+- 4 commits, each self-contained and non-breaking:
+  1. Extracted terrain editor → `scripts/tools/terrain_editor.gd` (270 lines)
+     - Brush painting, elevation editing, test map generation, save/load
+     - RefCounted helper with signal-based terrain_changed notification
+     - main.gd updated to read brush state through terrain_editor
+  2. Added child node structure (TerrainOverlay, Entities, DebugOverlay)
+     - Squad and Hound now spawn under Entities node for z-ordering
+  3. Extracted terrain rendering → `scripts/core/terrain_overlay.gd` (56 lines)
+     - Terrain cell colors, elevation shading, fog of war darkening
+  4. Extracted debug rendering → `scripts/core/debug_overlay.gd` (204 lines)
+     - Grid, LOS overlay, elevation/cover overlays, detection markers, path preview, hover, selection
+     - battle_map.gd now has ZERO _draw() code
+     - All queue_redraw() replaced with request_redraw() helper
+
+### Architecture state
+- Scene tree structure: BattleMap → TerrainOverlay → Entities → DebugOverlay
+- battle_map.gd handles: data, input, detection orchestration, fog logic, entity spawning
+- Rendering fully delegated to child Node2D nodes with their own _draw()
+- Old systems still run the game; new Phase 1 systems still not wired in
+- Scale mismatch still present (4m/cell in code, 1m/cell in JSON databases)
+
+### What's next
+- Run the game to verify Phase 2 extraction didn't break anything
+- Phase 3: Entity Refactor — wire Database lookups, extract HoundBrain, connect TickManager
+- Or: start wiring Phase 1 systems (CombatMath, DetectionSystem) into existing code
+
+### Known issues
+- Existing harmless warnings unchanged
+- UID files for new scripts (terrain_overlay, debug_overlay, terrain_editor) will be generated on first Godot run
+- battle_map.gd still at 511 lines — further extraction possible (input handling, detection processing) but not urgent
+
+---
+
 ## Session: 2026-02-11
 
 ### What happened

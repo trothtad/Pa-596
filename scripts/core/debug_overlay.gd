@@ -117,9 +117,9 @@ func _draw_path_preview() -> void:
 
 	# Draw connecting lines
 	if preview_path.size() > 1:
-		var start := battle_manager.grid_to_world(battle_manager.selected_unit.grid_pos) if battle_manager.selected_unit else battle_manager.grid_to_world(preview_path[0])
+		var start: Vector2 = battle_manager.grid_to_world(battle_manager.selected_unit.grid_pos) if battle_manager.selected_unit else battle_manager.grid_to_world(preview_path[0])
 		for i in range(preview_path.size()):
-			var end := battle_manager.grid_to_world(preview_path[i])
+			var end: Vector2 = battle_manager.grid_to_world(preview_path[i])
 			draw_line(start, end, Color(0.3, 0.85, 1.0, 0.15), 1.5)
 			start = end
 

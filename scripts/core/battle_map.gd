@@ -102,8 +102,8 @@ func _ready() -> void:
 	# Set up squad detection
 	squad_observer_profile = DetectionClass.make_human_squad_observer()
 
-	# Spawn entities
-	_spawn_test_squad()
+	# Spawn entities from Database
+	_spawn_squad_from_database("british_scout_section", Vector2i(5, 10))
 	_spawn_test_hound()
 
 	print("BattleMap: %dx%d grid initialized" % [terrain.width, terrain.height])
@@ -113,27 +113,52 @@ func _ready() -> void:
 	print("  L - toggle LOS from selected cell")
 	print("  1-6 - select terrain type directly")
 
-func _spawn_test_squad() -> void:
+func _spawn_squad_from_database(template_id: String, grid_pos: Vector2i) -> void:
+	"""Spawn a squad using Database lookups for composition, soldiers, and weapons."""
+	var squad_data = Database.get_squad_template(template_id)
+	if not squad_data:
+		push_warning("BattleMap: unknown squad template '%s'" % template_id)
+		return
+
 	var squad_script = load("res://scripts/core/squad.gd")
 	var squad = Node2D.new()
 	squad.set_script(squad_script)
 	squad.battle_map = self
 
-	# Create four soldiers: one leader, three troops
-	var soldier_list = [
-		SoldierClass.new("Cpl. Singh", "leader"),
-		SoldierClass.new("Pte. Williams", "trooper"),
-		SoldierClass.new("Pte. Heke", "trooper"),
-		SoldierClass.new("Pte. Marsh", "trooper"),
-	]
-
-	# Issue weapons — everyone gets a Lee-Enfield for now
+	# Build soldiers from composition
+	var soldier_list = []
 	var WeaponFactory = load("res://scripts/core/weapon_data.gd").new()
-	for s in soldier_list:
-		s.assign_weapon(WeaponFactory.lee_enfield())
+	var soldier_index := 0
+	for comp in squad_data.get("composition", []):
+		var soldier_template_id: String = comp.get("template", "rifleman_base")
+		var count: int = comp.get("count", 1)
+		var is_leader: bool = comp.get("is_leader", false)
+
+		var soldier_data = Database.get_soldier_template(soldier_template_id)
+		if not soldier_data:
+			push_warning("BattleMap: unknown soldier template '%s'" % soldier_template_id)
+			continue
+
+		for i in range(count):
+			var role := "leader" if is_leader and i == 0 else "trooper"
+			var display_name: String = soldier_data.get("display_name", "Soldier")
+			var name := "%s %d" % [display_name, soldier_index + 1]
+			var soldier = SoldierClass.new(name, role)
+
+			# Assign weapon from Database
+			var weapon_id: String = soldier_data.get("primary_weapon", "lee_enfield")
+			soldier.assign_weapon(WeaponFactory.from_json(weapon_id))
+
+			# Apply base stats if available
+			var stats = soldier_data.get("base_stats", {})
+			if stats.has("marksmanship"):
+				soldier.accuracy = stats["marksmanship"]
+
+			soldier_list.append(soldier)
+			soldier_index += 1
 
 	entities_node.add_child(squad)
-	squad.setup("Scout Team Alpha", Vector2i(5, 10), soldier_list)
+	squad.setup(squad_data.get("display_name", template_id), grid_pos, soldier_list)
 	units.append(squad)
 
 	# Connect signals

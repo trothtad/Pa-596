@@ -83,8 +83,11 @@ func _ready() -> void:
 	entities_node.name = "Entities"
 	add_child(entities_node)
 
+	var DebugOverlayScript = load("res://scripts/core/debug_overlay.gd")
 	debug_overlay = Node2D.new()
+	debug_overlay.set_script(DebugOverlayScript)
 	debug_overlay.name = "DebugOverlay"
+	debug_overlay.battle_manager = self
 	add_child(debug_overlay)
 
 	# Create pathfinder
@@ -187,7 +190,7 @@ func _process(delta: float) -> void:
 		else:
 			preview_path.clear()
 
-		queue_redraw()
+		request_redraw()
 
 	# Squad detection of hostiles
 	_process_squad_detection(delta)
@@ -207,7 +210,7 @@ func _input(event: InputEvent) -> void:
 				# Let terrain editor try first
 				if not terrain_editor.handle_left_click(grid_pos):
 					_handle_left_click(grid_pos)
-				queue_redraw()
+				request_redraw()
 
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			if not terrain_editor.handle_right_click(grid_pos):
@@ -217,7 +220,7 @@ func _input(event: InputEvent) -> void:
 					selected_unit = null
 					preview_path.clear()
 					clear_los()
-					queue_redraw()
+					request_redraw()
 
 	if event is InputEventKey and event.pressed:
 		# Let terrain editor handle keys first
@@ -229,7 +232,7 @@ func _input(event: InputEvent) -> void:
 				selected_unit = null
 				preview_path.clear()
 				clear_los()
-			queue_redraw()
+			request_redraw()
 			return
 
 		# Keys the battle map handles directly
@@ -309,8 +312,7 @@ func _on_hostile_state_changed(entity: Node2D, _old_state: int, _new_state: int)
 		pass  # Already printed by hound.gd itself
 
 func _on_terrain_changed() -> void:
-	terrain_overlay.queue_redraw()
-	queue_redraw()
+	request_redraw(true)
 
 func _process_squad_detection(delta: float) -> void:
 	"""Run detection FROM squads TOWARD hostiles."""
@@ -454,13 +456,13 @@ func update_los_from(pos: Vector2i) -> void:
 	los_origin = pos
 	los_visible_cells = calculate_los_from(pos)
 	show_los = true
-	queue_redraw()
+	request_redraw()
 
 func clear_los() -> void:
 	los_visible_cells.clear()
 	los_origin = Vector2i(-1, -1)
 	show_los = false
-	queue_redraw()
+	request_redraw()
 
 # --- Fog of War ---
 
@@ -474,186 +476,24 @@ func recalculate_fog() -> void:
 		for cell in visible:
 			fog_visible[cell] = true
 			fog_explored[cell] = true
-	terrain_overlay.queue_redraw()
-	queue_redraw()
+	request_redraw(true)
 
 func toggle_fog() -> void:
 	fog_enabled = not fog_enabled
 	if fog_enabled:
 		recalculate_fog()
 	print("Fog of war: %s" % ("ON" if fog_enabled else "OFF"))
-	terrain_overlay.queue_redraw()
-	queue_redraw()
+	request_redraw(true)
 
-# --- Drawing ---
+# --- Redraw helpers ---
+# All rendering is handled by child nodes (TerrainOverlay, DebugOverlay).
+# battle_map.gd has ZERO _draw() code.
 
-func _draw() -> void:
-	# Terrain rendering handled by TerrainOverlay child node
-	if show_los:
-		_draw_los_overlay()
-	if show_grid:
-		_draw_grid()
-	if show_elevation:
-		_draw_elevation_overlay()
-	if show_cover:
-		_draw_cover_overlay()
-	_draw_detection_markers()
-	if preview_path.size() > 0:
-		_draw_path_preview()
-	_draw_hover()
-	_draw_selection()
-
-func _draw_los_overlay() -> void:
-	if los_origin == Vector2i(-1, -1):
-		return
-
-	# Build a set for fast lookup
-	var visible_set := {}
-	for cell in los_visible_cells:
-		visible_set[cell] = true
-
-	# Draw range circle area
-	var max_range := 15
-	for x in range(maxi(0, los_origin.x - max_range), mini(terrain.width, los_origin.x + max_range + 1)):
-		for y in range(maxi(0, los_origin.y - max_range), mini(terrain.height, los_origin.y + max_range + 1)):
-			var pos := Vector2i(x, y)
-			var dist := los_origin.distance_to(Vector2(pos))
-			if dist > max_range:
-				continue
-
-			var rect := Rect2(Vector2(x * CELL_SIZE, y * CELL_SIZE), Vector2(CELL_SIZE, CELL_SIZE))
-
-			if visible_set.has(pos):
-				# Visible - subtle green tint
-				draw_rect(rect, Color(0.2, 0.8, 0.2, 0.12))
-			else:
-				# Not visible - fogged red
-				draw_rect(rect, Color(0.6, 0.1, 0.1, 0.25))
-
-	# Highlight the origin cell
-	var origin_rect := Rect2(
-		Vector2(los_origin.x * CELL_SIZE, los_origin.y * CELL_SIZE),
-		Vector2(CELL_SIZE, CELL_SIZE)
-	)
-	draw_rect(origin_rect, Color(0.2, 0.8, 1.0, 0.4))
-
-func _draw_detection_markers() -> void:
-	"""Draw indicators for detected but not fully visible hostiles."""
-	for hostile_id in detected_hostile_positions:
-		var info = detected_hostile_positions[hostile_id]
-		var pos: Vector2i = info["pos"]
-		var level: float = info["level"]
-		var label: String = info["label"]
-
-		var center = Vector2(pos.x * CELL_SIZE + CELL_SIZE * 0.5, pos.y * CELL_SIZE + CELL_SIZE * 0.5)
-
-		if level < DetectionClass.THRESHOLD_DETECTED:
-			# SUSPECTED — vague threat indicator, large fuzzy area
-			var pulse = sin(Time.get_ticks_msec() * 0.003) * 0.15 + 0.25
-			draw_arc(center, CELL_SIZE * 3, 0, TAU, 24, Color(0.9, 0.3, 0.1, pulse), 2.0)
-			# Question mark area
-			draw_circle(center, 4.0, Color(0.9, 0.3, 0.1, pulse + 0.1))
-
-		elif level < DetectionClass.THRESHOLD_IDENTIFIED:
-			# DETECTED — tighter indicator, something is definitely there
-			var pulse = sin(Time.get_ticks_msec() * 0.005) * 0.1 + 0.4
-			draw_arc(center, CELL_SIZE * 1.5, 0, TAU, 20, Color(0.9, 0.2, 0.05, pulse), 2.5)
-			draw_circle(center, 5.0, Color(0.9, 0.2, 0.05, pulse))
-
-		elif level < DetectionClass.THRESHOLD_TRACKED:
-			# IDENTIFIED — we know what it is, position approximate
-			# The hound node is visible at this point, but add a tracking ring
-			draw_arc(center, CELL_SIZE * 0.8, 0, TAU, 16, Color(1.0, 0.1, 0.0, 0.5), 2.0)
-
-		else:
-			# TRACKED — tight ring on exact position
-			draw_arc(center, CELL_SIZE * 0.6, 0, TAU, 16, Color(1.0, 0.0, 0.0, 0.7), 2.0)
-
-func _draw_path_preview() -> void:
-	# Draw dotted path from unit to mouse hover
-	for i in range(preview_path.size()):
-		var cell := preview_path[i]
-		var center := Vector2(
-			cell.x * CELL_SIZE + CELL_SIZE * 0.5,
-			cell.y * CELL_SIZE + CELL_SIZE * 0.5
-		)
-		# Fade from bright to dim along path
-		var alpha := lerpf(0.6, 0.2, float(i) / maxf(preview_path.size(), 1))
-		draw_circle(center, 4.0, Color(0.3, 0.85, 1.0, alpha))
-
-	# Draw connecting lines
-	if preview_path.size() > 1:
-		var start := grid_to_world(selected_unit.grid_pos) if selected_unit else grid_to_world(preview_path[0])
-		for i in range(preview_path.size()):
-			var end := grid_to_world(preview_path[i])
-			draw_line(start, end, Color(0.3, 0.85, 1.0, 0.15), 1.5)
-			start = end
-
-	# Path length indicator at the end
-	if preview_path.size() > 0:
-		var last := preview_path[preview_path.size() - 1]
-		var last_center := Vector2(
-			last.x * CELL_SIZE + CELL_SIZE * 0.5,
-			last.y * CELL_SIZE + CELL_SIZE * 0.5
-		)
-		# End marker - slightly larger
-		draw_circle(last_center, 6.0, Color(0.3, 0.85, 1.0, 0.4))
-		draw_arc(last_center, 6.0, 0, TAU, 16, Color(0.3, 0.85, 1.0, 0.6), 1.5)
-
-func _draw_grid() -> void:
-	var grid_color := Color(0.0, 0.0, 0.0, 0.15)
-	var map_width := terrain.width * CELL_SIZE
-	var map_height := terrain.height * CELL_SIZE
-
-	# Vertical lines
-	for x in range(terrain.width + 1):
-		var from := Vector2(x * CELL_SIZE, 0)
-		var to := Vector2(x * CELL_SIZE, map_height)
-		draw_line(from, to, grid_color, 1.0)
-
-	# Horizontal lines
-	for y in range(terrain.height + 1):
-		var from := Vector2(0, y * CELL_SIZE)
-		var to := Vector2(map_width, y * CELL_SIZE)
-		draw_line(from, to, grid_color, 1.0)
-
-func _draw_elevation_overlay() -> void:
-	for x in range(terrain.width):
-		for y in range(terrain.height):
-			var pos := Vector2i(x, y)
-			var elev: int = terrain.get_cell_property(pos, "elevation")
-			if elev != 1:  # Only show non-baseline
-				var color := TerrainManager.get_elevation_color(elev)
-				var rect := Rect2(Vector2(x * CELL_SIZE, y * CELL_SIZE), Vector2(CELL_SIZE, CELL_SIZE))
-				draw_rect(rect, color)
-
-func _draw_cover_overlay() -> void:
-	for x in range(terrain.width):
-		for y in range(terrain.height):
-			var pos := Vector2i(x, y)
-			var cover: int = terrain.get_cell_property(pos, "cover")
-			if cover > 0:
-				var color := TerrainManager.get_cover_color(cover)
-				var rect := Rect2(Vector2(x * CELL_SIZE, y * CELL_SIZE), Vector2(CELL_SIZE, CELL_SIZE))
-				draw_rect(rect, color)
-
-func _draw_hover() -> void:
-	if terrain.is_valid_cell(hovered_cell):
-		var rect := Rect2(
-			Vector2(hovered_cell.x * CELL_SIZE, hovered_cell.y * CELL_SIZE),
-			Vector2(CELL_SIZE, CELL_SIZE)
-		)
-		draw_rect(rect, Color(1.0, 1.0, 1.0, 0.2))
-		draw_rect(rect, Color(1.0, 1.0, 1.0, 0.5), false, 2.0)
-
-func _draw_selection() -> void:
-	if terrain.is_valid_cell(selected_cell):
-		var rect := Rect2(
-			Vector2(selected_cell.x * CELL_SIZE, selected_cell.y * CELL_SIZE),
-			Vector2(CELL_SIZE, CELL_SIZE)
-		)
-		draw_rect(rect, Color(1.0, 0.9, 0.3, 0.3))
-		draw_rect(rect, Color(1.0, 0.9, 0.3, 0.8), false, 2.0)
+func request_redraw(terrain_changed: bool = false) -> void:
+	"""Trigger redraws on the appropriate overlay nodes."""
+	debug_overlay.queue_redraw()
+	if terrain_changed:
+		terrain_overlay.queue_redraw()
 
 # --- Coordinate conversion ---
 
@@ -668,4 +508,4 @@ func _on_debug_setting_changed(setting: String, value: bool) -> void:
 		"grid": show_grid = value
 		"elevation": show_elevation = value
 		"cover": show_cover = value
-	queue_redraw()
+	request_redraw()

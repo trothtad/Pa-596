@@ -1,6 +1,66 @@
 # Pā 596 - Development Log
 
-## Session: 2026-02-12
+## Session: 2026-02-12 (Phase 3)
+
+### What happened
+- Completed Phase 3 (Entity Refactor) — 5 commits, each non-breaking:
+  1. **Detection hysteresis** — fixed STALK↔SEARCH thrash bug
+     - Added `HYSTERESIS_BUFFER = 0.05` and `previous_awareness` tracking to DetectionState
+     - To ENTER a level: need full threshold. To DROP: need threshold - buffer.
+     - hound.gd and battle_map.gd now use `get_awareness_label()` strings instead of raw float thresholds
+     - STALK→SEARCH requires dropping all the way to "UNAWARE" (not just below SUSPECTED)
+  2. **Database-driven weapons** — `weapon_data.gd` gets `from_json()` factory
+     - Added `gameplay{}` sub-objects to weapons.json with cell-scale values
+     - Avoids lossy real-world → gameplay conversion; factory reads directly
+     - Old factory methods (lee_enfield, bren_gun, sten_gun) kept for backwards compatibility
+  3. **Database-driven squad spawning** — `_spawn_squad_from_database(template_id, pos)`
+     - Reads composition from squads.json, soldier templates from soldiers.json
+     - Weapons assigned via `from_json()`, stats applied from base_stats
+     - Generic names: "Rifleman 1", "Corporal 2", etc.
+  4. **Database-driven hound spawning** — `load_from_database(template_id)`
+     - Stats, speeds, detection profiles loaded from hostiles.json
+     - JSON pixel ranges converted to cells (÷32), gameplay rates kept hardcoded
+     - `_ready()` only sets defaults if load_from_database wasn't called
+  5. **Tick-based detection** — detection wired to TickManager
+     - Both squad→hostile and hound→squad detection connect to `TickManager.tick` signal
+     - Fixed 10Hz rate (0.1s delta per tick) instead of per-frame
+     - Movement/rendering stay in `_process()` for smooth visuals
+     - Pausing TickManager freezes detection; speed changes affect detection correctly
+
+### Key decisions
+- **Patched old detection.gd** rather than migrating to incomplete DetectionSystem
+  - New system missing firing noise, stationary hearing, 3-channel noise profiles
+  - Old system has all features, just needed hysteresis and tick-based timing
+- **gameplay{} sub-objects** in weapons.json rather than auto-converting real-world stats
+  - JSON effective_range=500m would be 125 cells — way too far for 40×30 map
+  - Old factory values are gameplay-tuned; JSON stores both real and gameplay stats
+- **Pixel ÷ 32 conversion** for detection ranges (JSON in pixels, code in cells)
+  - Gameplay rates (sight_rate, hearing_rate) stay hardcoded, not in JSON
+
+### Architecture state
+- Scene tree: BattleMap → TerrainOverlay → Entities → DebugOverlay
+- battle_map.gd: data, input, detection orchestration, fog, DB-driven spawning
+- Entity spawning reads JSON via Database autoload
+- Detection runs on TickManager tick signal at 10Hz
+- Old systems still run combat (combat_resolver.gd untouched)
+- New Phase 1 pure function systems (CombatMath, DetectionSystem) still not wired in
+- Scale mismatch still present (4m/cell in code, 1m/cell in JSON databases)
+
+### What's next
+- Run the game to verify Phase 3 changes (detection, spawning, tick wiring)
+- Phase 4: Move scripts from `scripts/core/` to target folder structure, cleanup
+- Or: start wiring combat (CombatMath) into existing code
+- Or: begin Phase A priorities (suppression, composure, ammo tracking)
+
+### Known issues
+- Existing harmless warnings unchanged
+- UID files for new scripts need committing
+- HoundBrain extraction deferred (saving for when we have tick-based AI)
+- Scale reconciliation deferred to Phase 4
+
+---
+
+## Session: 2026-02-12 (Phase 2)
 
 ### What happened
 - Completed Phase 2 (Extraction) — split battle_map.gd from ~880 lines to 511 lines

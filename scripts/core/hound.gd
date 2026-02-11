@@ -72,10 +72,53 @@ signal entity_moved(entity: Node2D, from: Vector2i, to: Vector2i)
 signal entity_state_changed(entity: Node2D, old_state: int, new_state: int)
 signal entity_killed(entity: Node2D)
 
+func load_from_database(template_id: String) -> void:
+	"""Load stats, speeds, and detection profiles from hostiles.json via Database."""
+	var data = Database.get_hostile_template(template_id)
+	if not data:
+		push_warning("Hound: unknown template '%s', using defaults" % template_id)
+		return
+
+	entity_name = data.get("display_name", entity_name)
+
+	# Stats
+	var stats = data.get("stats", {})
+	hp_max = stats.get("max_health", hp_max)
+	hp_current = hp_max
+	armor = stats.get("armor", armor)
+	walk_speed = float(stats.get("speed", walk_speed))
+	stalk_speed = walk_speed * 0.6  # derive stalk from base speed
+	run_speed = float(stats.get("charge_speed", run_speed))
+
+	# Observer profile — how the Hound perceives targets
+	# JSON detection ranges are in pixels, convert to cells (÷32)
+	var det = data.get("detection", {})
+	observer_profile = DetectionClass.DetectionProfile.new()
+	observer_profile.sight_range = det.get("sight_range", 320) / 32.0
+	observer_profile.sight_rate = 0.12       # keep tuned gameplay rates
+	observer_profile.sight_motion_bonus = 0.15
+	observer_profile.hearing_range = det.get("hearing_range", 640) / 32.0
+	observer_profile.hearing_rate = 0.08
+	observer_profile.seismic_range = det.get("seismic_range", 160) / 32.0
+	observer_profile.seismic_rate = 0.05
+
+	# Target profile — how detectable the Hound is
+	var det_prof = data.get("detection_profile", {})
+	target_profile = DetectionClass.DetectionProfile.new()
+	target_profile.visual_signature = det_prof.get("visual_signature", 0.8)
+	target_profile.noise_moving = det_prof.get("noise_signature", 0.6)
+	target_profile.noise_stationary = det_prof.get("noise_signature", 0.6) * 0.1
+	target_profile.noise_firing = 0.0  # hounds don't shoot
+	target_profile.seismic_signature = det_prof.get("seismic_signature", 0.2)
+
+	sight_range = int(observer_profile.sight_range)
+
 func _ready() -> void:
-	# Set up detection profiles
-	observer_profile = DetectionClass.make_hound_observer()
-	target_profile = DetectionClass.make_hound_target()
+	# Set up detection profiles (defaults — overridden by load_from_database if called)
+	if not observer_profile:
+		observer_profile = DetectionClass.make_hound_observer()
+	if not target_profile:
+		target_profile = DetectionClass.make_hound_target()
 
 func setup(p_name: String, p_grid_pos: Vector2i, p_waypoints: Array[Vector2i]) -> void:
 	entity_name = p_name

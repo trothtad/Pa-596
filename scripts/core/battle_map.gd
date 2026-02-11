@@ -104,7 +104,11 @@ func _ready() -> void:
 
 	# Spawn entities from Database
 	_spawn_squad_from_database("british_scout_section", Vector2i(5, 10))
-	_spawn_test_hound()
+	var patrol_waypoints: Array[Vector2i] = [
+		Vector2i(30, 5), Vector2i(35, 15),
+		Vector2i(30, 25), Vector2i(25, 15),
+	]
+	_spawn_hound_from_database("hound_alpha", Vector2i(30, 15), patrol_waypoints)
 
 	print("BattleMap: %dx%d grid initialized" % [terrain.width, terrain.height])
 	print("  Left click - select unit / move unit / select cell")
@@ -172,29 +176,25 @@ func _spawn_squad_from_database(template_id: String, grid_pos: Vector2i) -> void
 	# Initial fog calculation
 	recalculate_fog()
 
-func _spawn_test_hound() -> void:
+func _spawn_hound_from_database(template_id: String, grid_pos: Vector2i, waypoints: Array[Vector2i]) -> void:
+	"""Spawn a hound using Database lookups for stats and detection profiles."""
 	var hound_script = load("res://scripts/core/hound.gd")
 	var hound = Node2D.new()
 	hound.set_script(hound_script)
 	hound.battle_map = self
 
-	# Patrol route on the far side of the map
-	var waypoints: Array[Vector2i] = [
-		Vector2i(30, 5),
-		Vector2i(35, 15),
-		Vector2i(30, 25),
-		Vector2i(25, 15),
-	]
+	# Load stats from Database before adding to tree (so _ready has profiles)
+	hound.load_from_database(template_id)
 
 	entities_node.add_child(hound)
-	hound.setup("Hound Alpha", Vector2i(30, 15), waypoints)
+	hound.setup(hound.entity_name, grid_pos, waypoints)
 	hostiles.append(hound)
 
 	# Connect signals
 	hound.entity_moved.connect(_on_hostile_moved)
 	hound.entity_state_changed.connect(_on_hostile_state_changed)
 
-	print("\n⚠ HOSTILE DEPLOYED: %s at (%d, %d)" % [hound.entity_name, hound.grid_pos.x, hound.grid_pos.y])
+	print("\n HOSTILE DEPLOYED: %s at (%d, %d)" % [hound.entity_name, hound.grid_pos.x, hound.grid_pos.y])
 	print("  Patrol route: %s" % str(waypoints))
 
 func _process(delta: float) -> void:

@@ -1,5 +1,38 @@
 # Pā 596 - Development Log
 
+## Session: 2026-02-11
+
+### What happened
+- Synced all uncommitted work from main repo into worktree, committed in 6 logical groups
+- Rewrote CLAUDE.md to incorporate ARCHITECTURE.md as canonical target architecture
+- Completed Phase 1 (Foundation) of the architecture migration:
+  - Created `data/` folder structure with JSON databases and schemas
+  - Added weapons, soldiers, squads, hostiles, and terrain type definitions
+  - Terrain types support inheritance (rubble inherits rough, crater inherits rough)
+  - Added `TickManager` autoload (10 ticks/sec, speed control, pause)
+  - Added `Database` autoload (JSON loader with schema validation and inheritance resolution)
+  - Added `CombatMath` pure function system (static hit chance + damage calculations)
+  - Added `DetectionSystem` pure function system (static detection gain/decay with hysteresis)
+  - Added `TerrainQuery` placeholder (API stub for Phase 2 extraction)
+
+### Architecture state
+- Old systems (`combat_resolver.gd`, `detection.gd`, `weapon_data.gd`) still run the game
+- New systems (`CombatMath`, `DetectionSystem`, `Database`) exist alongside but aren't wired in
+- `TickManager` registered as autoload, emitting ticks, but nothing connects to it yet
+- Scale mismatch noted: JSON databases use 1m = 1 cell, current code uses 4m/cell
+
+### What's next
+- Phase 2: Extraction — split battle_map.gd into render_manager, input_manager, battle_manager, terrain_editor
+- Or alternatively, start wiring new systems into existing code incrementally
+- Run the game to verify no startup errors from new autoloads
+
+### Known issues
+- Existing harmless warnings unchanged
+- `data/effects/` directory removed (no content yet, will recreate when effects system is built)
+- UID files for new scripts will be generated on first Godot editor/run
+
+---
+
 ## Session: 2026-02-10
 
 ### What happened

@@ -1,0 +1,7 @@
+{
+  "required": ["display_name", "class", "stats", "detection", "attack", "behavior"],
+  "known_keys": [
+    "display_name", "class", "subtype", "stats", "detection",
+    "attack", "behavior", "detection_profile"
+  ]
+}

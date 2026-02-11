@@ -1,0 +1,70 @@
+{
+  "hound_alpha": {
+    "display_name": "Hellhound",
+    "class": "hound",
+    "subtype": "hellhound",
+    "stats": {
+      "max_health": 4,
+      "armor": 0,
+      "speed": 80,
+      "charge_speed": 160
+    },
+    "detection": {
+      "sight_range": 300,
+      "hearing_range": 200,
+      "seismic_range": 150,
+      "smell_range": 100
+    },
+    "attack": {
+      "melee_damage": 35,
+      "melee_range": 32,
+      "attack_cooldown": 1.5
+    },
+    "behavior": {
+      "aggression": 0.7,
+      "pack_tendency": 0.8,
+      "flee_threshold": 0.25
+    },
+    "detection_profile": {
+      "visual_signature": 1.5,
+      "thermal_signature": 2.0,
+      "noise_signature": 0.5,
+      "seismic_signature": 0.8
+    }
+  },
+  "headman": {
+    "display_name": "Headman",
+    "class": "hound",
+    "subtype": "headman",
+    "stats": {
+      "max_health": 3,
+      "armor": 1,
+      "speed": 120,
+      "charge_speed": 200
+    },
+    "detection": {
+      "sight_range": 150,
+      "hearing_range": 400,
+      "seismic_range": 50,
+      "smell_range": 300
+    },
+    "attack": {
+      "melee_damage": 100,
+      "melee_range": 24,
+      "attack_cooldown": 3.0,
+      "special": "decapitate"
+    },
+    "behavior": {
+      "aggression": 0.5,
+      "pack_tendency": 0.1,
+      "flee_threshold": 0.5,
+      "prefers_isolated": true
+    },
+    "detection_profile": {
+      "visual_signature": 0.6,
+      "thermal_signature": 0.8,
+      "noise_signature": 0.1,
+      "seismic_signature": 0.2
+    }
+  }
+}

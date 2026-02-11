@@ -1,0 +1,32 @@
+{
+  "british_rifle_section": {
+    "display_name": "Rifle Section",
+    "nation": "uk",
+    "composition": [
+      {"template": "nco_base", "count": 1, "is_leader": true},
+      {"template": "gunner_base", "count": 1},
+      {"template": "rifleman_base", "count": 6}
+    ],
+    "formation": {
+      "default": "line",
+      "spacing": 32
+    },
+    "base_morale": 60,
+    "training_level": "regular"
+  },
+  "british_scout_section": {
+    "display_name": "Scout Section",
+    "nation": "uk",
+    "composition": [
+      {"template": "nco_base", "count": 1, "is_leader": true},
+      {"template": "rifleman_base", "count": 3}
+    ],
+    "formation": {
+      "default": "wedge",
+      "spacing": 48
+    },
+    "base_morale": 70,
+    "training_level": "veteran",
+    "special_rules": ["stealth_bonus"]
+  }
+}

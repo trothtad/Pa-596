@@ -1,0 +1,7 @@
+{
+  "required": ["display_name", "nation", "composition", "base_morale"],
+  "known_keys": [
+    "display_name", "nation", "composition", "formation",
+    "base_morale", "training_level", "special_rules"
+  ]
+}

@@ -109,12 +109,14 @@ func _on_cell_hovered(pos: Vector2i) -> void:
 	var cover_names = ["None", "Light", "Heavy"]
 	
 	var paint_info := ""
-	if battle_map.paint_mode:
-		paint_info = "  |  PAINTING: %s" % battle_map.paint_terrain
+	if battle_map.brush_mode == battle_map.BrushMode.TERRAIN:
+		paint_info = "  |  TERRAIN BRUSH: %s" % battle_map.paint_terrain
+	elif battle_map.brush_mode == battle_map.BrushMode.ELEVATION:
+		paint_info = "  |  ELEVATION BRUSH (L:raise R:lower)"
 	
 	info_label.text = "(%d, %d) %s  Elev:%d  Cover:%s  Move:%.1f%s" % [
 		pos.x, pos.y, terrain_type.to_upper(), elev, cover_names[cover], move_cost, paint_info
 	]
 
-func _on_cell_selected(pos: Vector2i) -> void:
+func _on_cell_selected(_pos: Vector2i) -> void:
 	pass  # Could open detail panel later

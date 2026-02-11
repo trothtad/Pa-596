@@ -1,0 +1,8 @@
+{
+  "required": ["display_name"],
+  "known_keys": [
+    "display_name", "movement_cost", "cover_value", "concealment",
+    "blocks_los", "passable", "passable_amphibious", "los_penalty",
+    "color", "inherits", "_comment"
+  ]
+}

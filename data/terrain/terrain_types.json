@@ -1,0 +1,75 @@
+{
+  "open": {
+    "display_name": "Open Ground",
+    "movement_cost": 1.0,
+    "cover_value": 0,
+    "concealment": 0,
+    "blocks_los": false,
+    "passable": true,
+    "color": "#4a7c30"
+  },
+  "road": {
+    "display_name": "Road",
+    "movement_cost": 0.7,
+    "cover_value": 0,
+    "concealment": 0,
+    "blocks_los": false,
+    "passable": true,
+    "color": "#8b7355"
+  },
+  "rough": {
+    "display_name": "Rough Ground",
+    "movement_cost": 1.5,
+    "cover_value": 1,
+    "concealment": 0.2,
+    "blocks_los": false,
+    "passable": true,
+    "color": "#6b5344"
+  },
+  "forest": {
+    "display_name": "Forest",
+    "movement_cost": 2.0,
+    "cover_value": 2,
+    "concealment": 0.6,
+    "blocks_los": false,
+    "los_penalty": 0.5,
+    "passable": true,
+    "color": "#2d5016"
+  },
+  "building": {
+    "display_name": "Building",
+    "movement_cost": 999,
+    "cover_value": 4,
+    "concealment": 1.0,
+    "blocks_los": true,
+    "passable": false,
+    "color": "#555555"
+  },
+  "water": {
+    "display_name": "Water",
+    "movement_cost": 999,
+    "cover_value": 0,
+    "concealment": 0,
+    "blocks_los": false,
+    "passable": false,
+    "passable_amphibious": true,
+    "color": "#3366aa"
+  },
+  "rubble": {
+    "inherits": "rough",
+    "display_name": "Rubble",
+    "cover_value": 2,
+    "concealment": 0.3,
+    "color": "#666655",
+    "_comment": "Destroyed buildings become this"
+  },
+  "crater": {
+    "inherits": "rough",
+    "display_name": "Shell Crater",
+    "movement_cost": 1.8,
+    "cover_value": 3,
+    "concealment": 0.4,
+    "color": "#4a4a3a",
+    "_comment": "Artillery/explosion damage creates this"
+  }
+}

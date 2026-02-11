@@ -3,6 +3,7 @@
   "known_keys": [
     "display_name", "type", "caliber", "magazine_size", "rate_of_fire",
     "base_accuracy", "effective_range", "maximum_range", "damage",
-    "noise_radius", "weight_kg", "suppression_factor", "requires_setup"
+    "noise_radius", "weight_kg", "suppression_factor", "requires_setup",
+    "gameplay"
   ]
 }

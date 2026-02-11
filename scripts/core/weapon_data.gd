@@ -31,8 +31,32 @@ func get_range_modifier(distance_cells: int) -> int:
 	var range_fraction := float(distance_cells - optimal_range) / float(max_range - optimal_range)
 	return int(-50.0 * range_fraction)
 
-# --- Factory methods ---
+# --- Database factory ---
+# Creates a weapon from JSON data via Database autoload.
+# Usage: var rifle = WeaponData.new().from_json("lee_enfield")
+
+func from_json(weapon_id: String) -> RefCounted:
+	"""Create a weapon instance from Database JSON. Uses gameplay sub-object for cell-scale values."""
+	var data = Database.get_weapon(weapon_id)
+	if not data:
+		push_warning("WeaponData: unknown weapon '%s', returning default" % weapon_id)
+		return get_script().new(weapon_id)
+
+	var w = get_script().new(data.get("display_name", weapon_id))
+	var gp = data.get("gameplay", {})
+
+	w.rpm = gp.get("rpm", 10.0)
+	w.base_accuracy = gp.get("accuracy", 50)
+	w.pen = gp.get("pen_tier", 0)
+	w.ammo_capacity = gp.get("ammo", data.get("magazine_size", 10))
+	w.noise_radius = gp.get("noise_cells", 15)
+	w.optimal_range = gp.get("optimal_range", 8)
+	w.max_range = gp.get("max_range", 40)
+	return w
+
+# --- Legacy factory methods ---
 # These return NEW WeaponData instances configured for each weapon type.
+# Kept for backwards compatibility — prefer from_json() for new code.
 # Call on any instance: var rifle = WeaponData.new().lee_enfield()
 # Or via preloaded script: var WD = preload(...); var rifle = WD.new().lee_enfield()
 

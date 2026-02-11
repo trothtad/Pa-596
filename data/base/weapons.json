@@ -13,7 +13,16 @@
       "penetration": 12
     },
     "noise_radius": 200,
-    "weight_kg": 4.1
+    "weight_kg": 4.1,
+    "gameplay": {
+      "rpm": 10,
+      "accuracy": 65,
+      "pen_tier": 1,
+      "ammo": 10,
+      "optimal_range": 10,
+      "max_range": 50,
+      "noise_cells": 15
+    }
   },
   "sten_mkii": {
     "display_name": "Sten Mk II",
@@ -29,7 +38,16 @@
       "penetration": 6
     },
     "noise_radius": 150,
-    "weight_kg": 3.2
+    "weight_kg": 3.2,
+    "gameplay": {
+      "rpm": 40,
+      "accuracy": 40,
+      "pen_tier": 0,
+      "ammo": 32,
+      "optimal_range": 4,
+      "max_range": 15,
+      "noise_cells": 12
+    }
   },
   "bren_lmg": {
     "display_name": "Bren Light Machine Gun",
@@ -47,6 +65,15 @@
     "noise_radius": 250,
     "suppression_factor": 1.5,
     "weight_kg": 10.0,
-    "requires_setup": true
+    "requires_setup": true,
+    "gameplay": {
+      "rpm": 30,
+      "accuracy": 50,
+      "pen_tier": 1,
+      "ammo": 30,
+      "optimal_range": 8,
+      "max_range": 40,
+      "noise_cells": 18
+    }
   }
 }

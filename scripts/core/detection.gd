@@ -22,6 +22,10 @@ const THRESHOLD_DETECTED := 0.50
 const THRESHOLD_IDENTIFIED := 0.75
 const THRESHOLD_TRACKED := 1.0
 
+# Hysteresis buffer — once you reach a level, detection must drop further
+# below the threshold to lose it. Prevents oscillation at boundaries.
+const HYSTERESIS_BUFFER := 0.05
+
 # --- Detection Profile ---
 # Attached to anything that can detect things (observers)
 # AND anything that can be detected (targets)
@@ -58,19 +62,39 @@ class DetectionState:
 	var last_seen_time := 0.0      # game time of last detection tick
 	var primary_sense := ""        # what sense is driving detection ("sight", "hearing", "seismic")
 	var is_in_los := false         # currently have line of sight?
-	
+	var previous_awareness := "UNAWARE"  # tracks last label for hysteresis
+
 	func get_awareness_label() -> String:
-		if detection_level >= THRESHOLD_TRACKED:
-			return "TRACKED"
-		elif detection_level >= THRESHOLD_IDENTIFIED:
-			return "IDENTIFIED"
-		elif detection_level >= THRESHOLD_DETECTED:
-			return "DETECTED"
-		elif detection_level >= THRESHOLD_SUSPECTED:
-			return "SUSPECTED"
-		else:
-			return "UNAWARE"
-	
+		"""Returns awareness level with hysteresis to prevent threshold oscillation.
+		To ENTER a level: detection must reach the full threshold.
+		To DROP from a level: detection must fall below threshold - HYSTERESIS_BUFFER."""
+		var result := "UNAWARE"
+
+		# Check thresholds from highest to lowest
+		# For each level, use the entry threshold if we're below it,
+		# or the hold threshold (entry - buffer) if we're already at/above it
+		var was_tracked := previous_awareness == "TRACKED"
+		var was_identified := was_tracked or previous_awareness == "IDENTIFIED"
+		var was_detected := was_identified or previous_awareness == "DETECTED"
+		var was_suspected := was_detected or previous_awareness == "SUSPECTED"
+
+		var tracked_threshold := THRESHOLD_TRACKED - HYSTERESIS_BUFFER if was_tracked else THRESHOLD_TRACKED
+		var identified_threshold := THRESHOLD_IDENTIFIED - HYSTERESIS_BUFFER if was_identified else THRESHOLD_IDENTIFIED
+		var detected_threshold := THRESHOLD_DETECTED - HYSTERESIS_BUFFER if was_detected else THRESHOLD_DETECTED
+		var suspected_threshold := THRESHOLD_SUSPECTED - HYSTERESIS_BUFFER if was_suspected else THRESHOLD_SUSPECTED
+
+		if detection_level >= tracked_threshold:
+			result = "TRACKED"
+		elif detection_level >= identified_threshold:
+			result = "IDENTIFIED"
+		elif detection_level >= detected_threshold:
+			result = "DETECTED"
+		elif detection_level >= suspected_threshold:
+			result = "SUSPECTED"
+
+		previous_awareness = result
+		return result
+
 	func _init() -> void:
 		pass
 

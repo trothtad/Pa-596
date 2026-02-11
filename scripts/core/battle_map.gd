@@ -362,12 +362,13 @@ func _process_squad_detection(delta: float) -> void:
 		if det_state.detection_level > 0.01:
 			det_state.last_known_pos = hostile.grid_pos
 
-		# Update display info
-		if det_state.detection_level >= DetectionClass.THRESHOLD_SUSPECTED:
+		# Update display info using hysteresis-aware awareness label
+		var awareness := det_state.get_awareness_label()
+		if awareness != "UNAWARE":
 			detected_hostile_positions[hostile_id] = {
 				"pos": det_state.last_known_pos,
 				"level": det_state.detection_level,
-				"label": det_state.get_awareness_label(),
+				"label": awareness,
 				"hostile": hostile,
 			}
 		else:
@@ -379,8 +380,9 @@ func _update_hostile_visibility() -> void:
 		var hostile_id = hostile.get_instance_id()
 		if squad_detection_states.has(hostile_id):
 			var det = squad_detection_states[hostile_id]
+			var awareness := det.get_awareness_label()
 			# Only show the actual entity when IDENTIFIED or better
-			hostile.visible = det.detection_level >= DetectionClass.THRESHOLD_IDENTIFIED
+			hostile.visible = awareness == "IDENTIFIED" or awareness == "TRACKED"
 		else:
 			hostile.visible = false
 

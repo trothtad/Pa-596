@@ -176,34 +176,35 @@ func _run_detection(delta: float) -> void:
 		_evaluate_detection_transitions(unit, det_state)
 
 func _evaluate_detection_transitions(target: Node2D, det_state) -> void:
-	"""Decide whether to change state based on detection levels."""
-	var level = det_state.detection_level
-	
+	"""Decide whether to change state based on detection awareness.
+	Uses hysteresis-aware labels to prevent threshold oscillation."""
+	var awareness := det_state.get_awareness_label()
+
 	match state:
 		State.IDLE, State.PATROL:
-			if level >= DetectionClass.THRESHOLD_DETECTED:
+			if awareness == "DETECTED" or awareness == "IDENTIFIED" or awareness == "TRACKED":
 				_change_state(State.STALK)
 				current_target = target
 				last_known_target_pos = det_state.last_known_pos
 				_path_to(last_known_target_pos, stalk_speed)
-		
+
 		State.STALK:
-			if level >= DetectionClass.THRESHOLD_TRACKED:
+			if awareness == "TRACKED":
 				_change_state(State.CHASE)
 				current_target = target
-			elif level < DetectionClass.THRESHOLD_SUSPECTED:
-				# Lost them
+			elif awareness == "UNAWARE":
+				# Hysteresis: must drop fully to UNAWARE to lose the scent
 				_change_state(State.SEARCH)
 				search_timer = 0.0
-		
+
 		State.CHASE:
-			if level < DetectionClass.THRESHOLD_DETECTED:
+			if awareness == "UNAWARE" or awareness == "SUSPECTED":
 				# Lost them during chase
 				_change_state(State.SEARCH)
 				search_timer = 0.0
-		
+
 		State.SEARCH:
-			if level >= DetectionClass.THRESHOLD_DETECTED:
+			if awareness == "DETECTED" or awareness == "IDENTIFIED" or awareness == "TRACKED":
 				_change_state(State.STALK)
 				current_target = target
 				last_known_target_pos = det_state.last_known_pos
@@ -231,21 +232,22 @@ func _process_stalk(delta: float) -> void:
 		var target_id = current_target.get_instance_id()
 		if detection_states.has(target_id):
 			var det = detection_states[target_id]
-			if det.detection_level >= DetectionClass.THRESHOLD_DETECTED:
+			var awareness := det.get_awareness_label()
+			if awareness == "DETECTED" or awareness == "IDENTIFIED" or awareness == "TRACKED":
 				last_known_target_pos = det.last_known_pos
-	
+
 	if move_path.size() == 0:
 		# Reached last known position — if we can see them, chase. Otherwise search.
 		if current_target:
 			var target_id = current_target.get_instance_id()
 			if detection_states.has(target_id):
-				if detection_states[target_id].detection_level >= DetectionClass.THRESHOLD_TRACKED:
+				if detection_states[target_id].get_awareness_label() == "TRACKED":
 					_change_state(State.CHASE)
 					return
 		_change_state(State.SEARCH)
 		search_timer = 0.0
 		return
-	
+
 	_follow_path(delta, stalk_speed)
 
 func _process_chase(delta: float) -> void:

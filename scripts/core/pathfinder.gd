@@ -47,7 +47,7 @@ func find_path(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 		iterations += 1
 		
 		# Find node in open set with lowest f_score
-		var current := _get_lowest_f(open_set, f_score)
+		var current = _get_lowest_f(open_set, f_score)
 		
 		if current == to:
 			return _reconstruct_path(came_from, current)
@@ -56,7 +56,7 @@ func find_path(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 		
 		# Check all neighbors
 		for offset in NEIGHBORS:
-			var neighbor := current + offset
+			var neighbor = current + offset
 			
 			if not terrain.is_valid_cell(neighbor):
 				continue
@@ -66,8 +66,8 @@ func find_path(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 			
 			# Calculate movement cost
 			var move_cost: float = terrain.get_cell_property(neighbor, "movement_cost")
-			var is_diagonal := (offset.x != 0 and offset.y != 0)
-			var step_cost := move_cost * (DIAGONAL_COST if is_diagonal else 1.0)
+			var is_diagonal = (offset.x != 0 and offset.y != 0)
+			var step_cost = move_cost * (DIAGONAL_COST if is_diagonal else 1.0)
 			
 			# Water penalty (passable but slow unless specifically handled)
 			if terrain.get_cell_property(neighbor, "is_water"):
@@ -76,11 +76,11 @@ func find_path(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 			# Elevation change cost
 			var current_elev: int = terrain.get_cell_property(current, "elevation")
 			var neighbor_elev: int = terrain.get_cell_property(neighbor, "elevation")
-			var elev_diff := absi(neighbor_elev - current_elev)
+			var elev_diff = absi(neighbor_elev - current_elev)
 			if elev_diff > 0:
 				step_cost += elev_diff * 0.5
 			
-			var tentative_g := g_score.get(current, INF) + step_cost
+			var tentative_g = g_score.get(current, INF) + step_cost
 			
 			if tentative_g < g_score.get(neighbor, INF):
 				came_from[neighbor] = current

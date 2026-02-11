@@ -4,6 +4,9 @@
 extends Node2D
 
 const PathfinderClass = preload("res://scripts/core/pathfinder.gd")
+const SoldierClass = preload("res://scripts/core/soldier.gd")
+const HoundClass = preload("res://scripts/core/hound.gd")
+const DetectionClass = preload("res://scripts/core/detection.gd")
 
 # Grid settings
 const CELL_SIZE := 32  # pixels per cell
@@ -47,9 +50,25 @@ var selected_unit: Node2D = null
 var pathfinder = null  # PathfinderClass instance
 var preview_path: Array[Vector2i] = []  # path preview on hover
 
-# Current paint brush
-var paint_mode := false
+# Hostiles
+var hostiles: Array[Node2D] = []
+
+# Squad detection of hostiles
+var squad_detection_states: Dictionary = {}  # hostile_id -> DetectionState
+var squad_observer_profile = null
+var detected_hostile_positions: Dictionary = {}  # hostile_id -> {pos, level, label}
+
+# Fog of war
+var fog_enabled := true
+var fog_visible: Dictionary = {}   # cells ANY unit can currently see
+var fog_explored: Dictionary = {}  # cells that have EVER been seen
+
+# Brush system
+enum BrushMode { NONE, TERRAIN, ELEVATION }
+var brush_mode: int = BrushMode.NONE
+var paint_mode := false  # kept for compatibility - true when brush_mode != NONE
 var paint_terrain := "open"
+var elevation_delta := 1  # +1 to raise, -1 to lower
 
 # Terrain type mapping for painting (cycle through these)
 var terrain_types := ["open", "road", "rough", "water", "building", "impassable"]
@@ -72,8 +91,12 @@ func _ready() -> void:
 	# Tell GameState we have terrain
 	GameState.current_terrain = terrain
 	
-	# Spawn a test unit
-	_spawn_test_unit()
+	# Set up squad detection
+	squad_observer_profile = DetectionClass.make_human_squad_observer()
+	
+	# Spawn entities
+	_spawn_test_squad()
+	_spawn_test_hound()
 	
 	print("BattleMap: %dx%d grid initialized" % [terrain.width, terrain.height])
 	print("  Left click - select unit / move unit / select cell")
@@ -82,22 +105,64 @@ func _ready() -> void:
 	print("  L - toggle LOS from selected cell")
 	print("  1-6 - select terrain type directly")
 
-func _spawn_test_unit() -> void:
-	var unit_script = load("res://scripts/core/unit.gd")
-	var unit = Node2D.new()
-	unit.set_script(unit_script)
-	unit.battle_map = self
-	unit.grid_pos = Vector2i(5, 10)
-	unit.unit_name = "Scout Team Alpha"
-	add_child(unit)
-	units.append(unit)
+func _spawn_test_squad() -> void:
+	var squad_script = load("res://scripts/core/squad.gd")
+	var squad = Node2D.new()
+	squad.set_script(squad_script)
+	squad.battle_map = self
+	
+	# Create four soldiers: one leader, three troops
+	var soldier_list = [
+		SoldierClass.new("Cpl. Singh", "leader"),
+		SoldierClass.new("Pte. Williams", "trooper"),
+		SoldierClass.new("Pte. Heke", "trooper"),
+		SoldierClass.new("Pte. Marsh", "trooper"),
+	]
+	
+	# Issue weapons — everyone gets a Lee-Enfield for now
+	var WeaponFactory = load("res://scripts/core/weapon_data.gd").new()
+	for s in soldier_list:
+		s.assign_weapon(WeaponFactory.lee_enfield())
+	
+	add_child(squad)
+	squad.setup("Scout Team Alpha", Vector2i(5, 10), soldier_list)
+	units.append(squad)
 	
 	# Connect signals
-	unit.unit_moved.connect(_on_unit_moved)
-	unit.unit_arrived.connect(_on_unit_arrived)
+	squad.unit_moved.connect(_on_unit_moved)
+	squad.unit_arrived.connect(_on_unit_arrived)
 	
-	print("Deployed: %s at (%d, %d)" % [unit.unit_name, unit.grid_pos.x, unit.grid_pos.y])
-	print("  Click to select, click terrain to move.")
+	print("Deployed: %s at (%d, %d)" % [squad.squad_name, squad.grid_pos.x, squad.grid_pos.y])
+	print(squad.get_soldier_names())
+	print("  Click any soldier to select squad. Click terrain to move.")
+	
+	# Initial fog calculation
+	recalculate_fog()
+
+func _spawn_test_hound() -> void:
+	var hound_script = load("res://scripts/core/hound.gd")
+	var hound = Node2D.new()
+	hound.set_script(hound_script)
+	hound.battle_map = self
+	
+	# Patrol route on the far side of the map
+	var waypoints: Array[Vector2i] = [
+		Vector2i(30, 5),
+		Vector2i(35, 15),
+		Vector2i(30, 25),
+		Vector2i(25, 15),
+	]
+	
+	add_child(hound)
+	hound.setup("Hound Alpha", Vector2i(30, 15), waypoints)
+	hostiles.append(hound)
+	
+	# Connect signals
+	hound.entity_moved.connect(_on_hostile_moved)
+	hound.entity_state_changed.connect(_on_hostile_state_changed)
+	
+	print("\n⚠ HOSTILE DEPLOYED: %s at (%d, %d)" % [hound.entity_name, hound.grid_pos.x, hound.grid_pos.y])
+	print("  Patrol route: %s" % str(waypoints))
 
 func _generate_test_terrain() -> void:
 	"""Seed the map with some variety so it's not a flat void."""
@@ -158,7 +223,7 @@ func _generate_test_terrain() -> void:
 			terrain.set_cell_property(pos, "concealment", true)
 			terrain.set_cell_property(pos, "cover", 1)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	# Track mouse position for hover
 	var mouse_pos := get_local_mouse_position()
 	var new_hover := world_to_grid(mouse_pos)
@@ -168,7 +233,7 @@ func _process(_delta: float) -> void:
 		cell_hovered.emit(hovered_cell)
 		
 		# Update path preview if unit selected
-		if selected_unit and not paint_mode and terrain.is_valid_cell(hovered_cell):
+		if selected_unit and brush_mode == BrushMode.NONE and terrain.is_valid_cell(hovered_cell):
 			if not selected_unit.is_moving:
 				preview_path = pathfinder.find_path(selected_unit.grid_pos, hovered_cell)
 			else:
@@ -178,10 +243,17 @@ func _process(_delta: float) -> void:
 		
 		queue_redraw()
 	
-	# Paint mode: hold left click to paint
-	if paint_mode and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+	# Squad detection of hostiles
+	_process_squad_detection(delta)
+	_update_hostile_visibility()
+	
+	# Brush drag painting
+	if brush_mode != BrushMode.NONE and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		if terrain.is_valid_cell(hovered_cell):
-			_paint_cell(hovered_cell)
+			if brush_mode == BrushMode.TERRAIN:
+				_paint_cell(hovered_cell)
+			elif brush_mode == BrushMode.ELEVATION:
+				_paint_elevation(hovered_cell, 1)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
@@ -189,18 +261,25 @@ func _input(event: InputEvent) -> void:
 		
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if terrain.is_valid_cell(grid_pos):
-				if paint_mode:
+				if brush_mode == BrushMode.TERRAIN:
 					_paint_cell(grid_pos)
+				elif brush_mode == BrushMode.ELEVATION:
+					_paint_elevation(grid_pos, 1)
 				else:
 					_handle_left_click(grid_pos)
 				queue_redraw()
 		
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			if paint_mode:
+			if brush_mode == BrushMode.TERRAIN:
 				# Cycle terrain type
 				current_terrain_index = (current_terrain_index + 1) % terrain_types.size()
 				paint_terrain = terrain_types[current_terrain_index]
-				print("Paint terrain: %s" % paint_terrain)
+				print("TERRAIN BRUSH: %s" % paint_terrain)
+			elif brush_mode == BrushMode.ELEVATION:
+				# Right-click lowers elevation
+				if terrain.is_valid_cell(grid_pos):
+					_paint_elevation(grid_pos, -1)
+					queue_redraw()
 			else:
 				# Deselect unit
 				if selected_unit:
@@ -213,13 +292,9 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		match event.keycode:
 			KEY_P:
-				paint_mode = not paint_mode
-				if paint_mode and selected_unit:
-					selected_unit.deselect()
-					selected_unit = null
-					preview_path.clear()
-					clear_los()
-				print("Paint mode: %s (terrain: %s)" % ["ON" if paint_mode else "OFF", paint_terrain])
+				_cycle_brush_mode()
+			KEY_F:
+				toggle_fog()
 			KEY_L:
 				# Toggle LOS from selected cell or unit
 				if show_los:
@@ -228,11 +303,34 @@ func _input(event: InputEvent) -> void:
 					update_los_from(selected_unit.grid_pos)
 				elif terrain.is_valid_cell(selected_cell):
 					update_los_from(selected_cell)
-			KEY_1: _select_terrain(0)
-			KEY_2: _select_terrain(1)
-			KEY_3: _select_terrain(2)
-			KEY_4: _select_terrain(3)
-			KEY_5: _select_terrain(4)
+			KEY_0:
+				if brush_mode == BrushMode.ELEVATION and terrain.is_valid_cell(hovered_cell):
+					_set_elevation(hovered_cell, 0)
+			KEY_1:
+				if brush_mode == BrushMode.ELEVATION and terrain.is_valid_cell(hovered_cell):
+					_set_elevation(hovered_cell, 1)
+				else:
+					_select_terrain(0)
+			KEY_2:
+				if brush_mode == BrushMode.ELEVATION and terrain.is_valid_cell(hovered_cell):
+					_set_elevation(hovered_cell, 2)
+				else:
+					_select_terrain(1)
+			KEY_3:
+				if brush_mode == BrushMode.ELEVATION and terrain.is_valid_cell(hovered_cell):
+					_set_elevation(hovered_cell, 3)
+				else:
+					_select_terrain(2)
+			KEY_4:
+				if brush_mode == BrushMode.ELEVATION and terrain.is_valid_cell(hovered_cell):
+					_set_elevation(hovered_cell, 4)
+				else:
+					_select_terrain(3)
+			KEY_5:
+				if brush_mode == BrushMode.ELEVATION and terrain.is_valid_cell(hovered_cell):
+					_set_elevation(hovered_cell, 5)
+				else:
+					_select_terrain(4)
 			KEY_6: _select_terrain(5)
 			KEY_F2:
 				_save_map()
@@ -253,10 +351,11 @@ func _handle_left_click(grid_pos: Vector2i) -> void:
 		print("Selected: %s" % selected_unit.get_info())
 	elif selected_unit and not selected_unit.is_moving:
 		# Move selected unit to clicked cell
-		var path := pathfinder.find_path(selected_unit.grid_pos, grid_pos)
+		var path = pathfinder.find_path(selected_unit.grid_pos, grid_pos)
 		if path.size() > 0:
+			var name = selected_unit.squad_name if selected_unit.has_method("contains_point") else selected_unit.unit_name
 			print("Moving %s -> (%d,%d), %d steps" % [
-				selected_unit.unit_name, grid_pos.x, grid_pos.y, path.size()
+				name, grid_pos.x, grid_pos.y, path.size()
 			])
 			selected_unit.move_to(path)
 			preview_path.clear()
@@ -269,25 +368,150 @@ func _handle_left_click(grid_pos: Vector2i) -> void:
 		_print_cell_info(grid_pos)
 
 func _get_unit_at(grid_pos: Vector2i) -> Node2D:
+	"""Check if clicking near any soldier in any squad. Returns the squad."""
+	var click_world = grid_to_world(grid_pos)
 	for unit in units:
-		if unit.grid_pos == grid_pos:
+		# Squad-aware: check if click is near any soldier
+		if unit.has_method("contains_point"):
+			if unit.contains_point(click_world):
+				return unit
+		# Fallback for old-style units
+		elif unit.grid_pos == grid_pos:
 			return unit
 	return null
 
-func _on_unit_moved(unit: Node2D, from: Vector2i, to: Vector2i) -> void:
-	# Update LOS as unit moves
+func _on_unit_moved(unit: Node2D, _from: Vector2i, to: Vector2i) -> void:
+	# Recalculate fog every time any unit moves
+	recalculate_fog()
+	# Update LOS overlay if this unit is selected
 	if unit == selected_unit and show_los:
 		update_los_from(to)
 
 func _on_unit_arrived(unit: Node2D) -> void:
-	print("%s arrived at (%d,%d)" % [unit.unit_name, unit.grid_pos.x, unit.grid_pos.y])
+	var name = unit.squad_name if unit.has_method("contains_point") else unit.unit_name
+	print("%s arrived at (%d,%d)" % [name, unit.grid_pos.x, unit.grid_pos.y])
 	_print_cell_info(unit.grid_pos)
+
+func _on_hostile_moved(_entity: Node2D, _from: Vector2i, _to: Vector2i) -> void:
+	pass  # Could trigger effects later
+
+func _on_hostile_state_changed(entity: Node2D, _old_state: int, _new_state: int) -> void:
+	# Log state changes — useful for debugging AI
+	if entity.has_method("get_state_name"):
+		pass  # Already printed by hound.gd itself
+
+func _process_squad_detection(delta: float) -> void:
+	"""Run detection FROM squads TOWARD hostiles."""
+	if units.size() == 0 or hostiles.size() == 0:
+		return
+	
+	for hostile in hostiles:
+		var hostile_id = hostile.get_instance_id()
+		if not squad_detection_states.has(hostile_id):
+			squad_detection_states[hostile_id] = DetectionClass.DetectionState.new()
+		
+		var det_state = squad_detection_states[hostile_id]
+		var best_gain := -1.0
+		
+		# Each squad tries to detect — use the best result
+		for unit in units:
+			var distance = unit.grid_pos.distance_to(Vector2(hostile.grid_pos))
+			
+			# Check LOS from this squad to the hostile
+			var has_los = false
+			if distance <= squad_observer_profile.sight_range:
+				var visible = calculate_los_from(unit.grid_pos, int(squad_observer_profile.sight_range))
+				has_los = hostile.grid_pos in visible
+			
+			var in_concealment = false
+			if terrain.is_valid_cell(hostile.grid_pos):
+				in_concealment = terrain.get_cell_property(hostile.grid_pos, "concealment")
+			
+			var hostile_target_profile = hostile.target_profile if hostile.target_profile else DetectionClass.make_hound_target()
+			
+			var gain = DetectionClass.calculate_detection_tick(
+				unit.grid_pos,
+				squad_observer_profile,
+				hostile.grid_pos,
+				hostile_target_profile,
+				hostile.is_moving,
+				false,  # hostiles don't fire (yet)
+				has_los,
+				in_concealment,
+				distance,
+				delta
+			)
+			best_gain = maxf(best_gain, gain)
+		
+		det_state.detection_level = clampf(det_state.detection_level + best_gain, 0.0, 1.0)
+		
+		if det_state.detection_level > 0.01:
+			det_state.last_known_pos = hostile.grid_pos
+		
+		# Update display info
+		if det_state.detection_level >= DetectionClass.THRESHOLD_SUSPECTED:
+			detected_hostile_positions[hostile_id] = {
+				"pos": det_state.last_known_pos,
+				"level": det_state.detection_level,
+				"label": det_state.get_awareness_label(),
+				"hostile": hostile,
+			}
+		else:
+			detected_hostile_positions.erase(hostile_id)
+
+func _update_hostile_visibility() -> void:
+	"""Show/hide hostile nodes based on squad detection level."""
+	for hostile in hostiles:
+		var hostile_id = hostile.get_instance_id()
+		if squad_detection_states.has(hostile_id):
+			var det = squad_detection_states[hostile_id]
+			# Only show the actual entity when IDENTIFIED or better
+			hostile.visible = det.detection_level >= DetectionClass.THRESHOLD_IDENTIFIED
+		else:
+			hostile.visible = false
+
+func _cycle_brush_mode() -> void:
+	"""Cycle: NONE -> TERRAIN -> ELEVATION -> NONE"""
+	brush_mode = (brush_mode + 1) % 3
+	paint_mode = (brush_mode != BrushMode.NONE)
+	
+	# Deselect unit when entering any brush mode
+	if paint_mode and selected_unit:
+		selected_unit.deselect()
+		selected_unit = null
+		preview_path.clear()
+		clear_los()
+	
+	match brush_mode:
+		BrushMode.NONE:
+			print("=== BRUSH OFF ===")
+		BrushMode.TERRAIN:
+			print("=== TERRAIN BRUSH: %s === (1-6 select type, RClick cycle)" % paint_terrain)
+		BrushMode.ELEVATION:
+			print("=== ELEVATION BRUSH === (LClick raise, RClick lower, 0-5 set directly)")
 
 func _select_terrain(index: int) -> void:
 	if index < terrain_types.size():
 		current_terrain_index = index
 		paint_terrain = terrain_types[index]
-		print("Selected: %s" % paint_terrain)
+		if brush_mode == BrushMode.TERRAIN:
+			print("TERRAIN BRUSH: %s" % paint_terrain)
+		else:
+			print("Selected: %s" % paint_terrain)
+
+func _paint_elevation(pos: Vector2i, delta: int) -> void:
+	"""Raise or lower elevation at pos by delta."""
+	var current_elev: int = terrain.get_cell_property(pos, "elevation")
+	var new_elev := clampi(current_elev + delta, 0, 5)
+	if new_elev != current_elev:
+		terrain.set_cell_property(pos, "elevation", new_elev)
+		queue_redraw()
+
+func _set_elevation(pos: Vector2i, value: int) -> void:
+	"""Set elevation at pos to an absolute value."""
+	var clamped := clampi(value, 0, 5)
+	terrain.set_cell_property(pos, "elevation", clamped)
+	queue_redraw()
 
 func _paint_cell(pos: Vector2i) -> void:
 	terrain.set_cell_property(pos, "terrain_type", paint_terrain)
@@ -403,6 +627,27 @@ func clear_los() -> void:
 	show_los = false
 	queue_redraw()
 
+# --- Fog of War ---
+
+func recalculate_fog() -> void:
+	"""Recalculate combined visibility from all friendly units."""
+	if not fog_enabled:
+		return
+	fog_visible.clear()
+	for unit in units:
+		var visible = calculate_los_from(unit.grid_pos, unit.sight_range)
+		for cell in visible:
+			fog_visible[cell] = true
+			fog_explored[cell] = true
+	queue_redraw()
+
+func toggle_fog() -> void:
+	fog_enabled = not fog_enabled
+	if fog_enabled:
+		recalculate_fog()
+	print("Fog of war: %s" % ("ON" if fog_enabled else "OFF"))
+	queue_redraw()
+
 # --- Drawing ---
 
 func _draw() -> void:
@@ -415,6 +660,7 @@ func _draw() -> void:
 		_draw_elevation_overlay()
 	if show_cover:
 		_draw_cover_overlay()
+	_draw_detection_markers()
 	if preview_path.size() > 0:
 		_draw_path_preview()
 	_draw_hover()
@@ -432,6 +678,16 @@ func _draw_terrain() -> void:
 			var elev: int = cell.get("elevation", 1)
 			var shade := (elev - 1) * ELEVATION_SHADE
 			base_color = base_color.lightened(shade) if shade > 0 else base_color.darkened(-shade)
+			
+			# Fog of war darkening
+			if fog_enabled:
+				if not fog_explored.has(pos):
+					# Never seen - nearly black
+					base_color = base_color.darkened(0.85)
+				elif not fog_visible.has(pos):
+					# Previously seen but not currently visible - dim
+					base_color = base_color.darkened(0.5)
+				# else: currently visible - full color
 			
 			var rect := Rect2(Vector2(x * CELL_SIZE, y * CELL_SIZE), Vector2(CELL_SIZE, CELL_SIZE))
 			draw_rect(rect, base_color)
@@ -469,6 +725,38 @@ func _draw_los_overlay() -> void:
 		Vector2(CELL_SIZE, CELL_SIZE)
 	)
 	draw_rect(origin_rect, Color(0.2, 0.8, 1.0, 0.4))
+
+func _draw_detection_markers() -> void:
+	"""Draw indicators for detected but not fully visible hostiles."""
+	for hostile_id in detected_hostile_positions:
+		var info = detected_hostile_positions[hostile_id]
+		var pos: Vector2i = info["pos"]
+		var level: float = info["level"]
+		var label: String = info["label"]
+		
+		var center = Vector2(pos.x * CELL_SIZE + CELL_SIZE * 0.5, pos.y * CELL_SIZE + CELL_SIZE * 0.5)
+		
+		if level < DetectionClass.THRESHOLD_DETECTED:
+			# SUSPECTED — vague threat indicator, large fuzzy area
+			var pulse = sin(Time.get_ticks_msec() * 0.003) * 0.15 + 0.25
+			draw_arc(center, CELL_SIZE * 3, 0, TAU, 24, Color(0.9, 0.3, 0.1, pulse), 2.0)
+			# Question mark area
+			draw_circle(center, 4.0, Color(0.9, 0.3, 0.1, pulse + 0.1))
+		
+		elif level < DetectionClass.THRESHOLD_IDENTIFIED:
+			# DETECTED — tighter indicator, something is definitely there
+			var pulse = sin(Time.get_ticks_msec() * 0.005) * 0.1 + 0.4
+			draw_arc(center, CELL_SIZE * 1.5, 0, TAU, 20, Color(0.9, 0.2, 0.05, pulse), 2.5)
+			draw_circle(center, 5.0, Color(0.9, 0.2, 0.05, pulse))
+		
+		elif level < DetectionClass.THRESHOLD_TRACKED:
+			# IDENTIFIED — we know what it is, position approximate
+			# The hound node is visible at this point, but add a tracking ring
+			draw_arc(center, CELL_SIZE * 0.8, 0, TAU, 16, Color(1.0, 0.1, 0.0, 0.5), 2.0)
+		
+		else:
+			# TRACKED — tight ring on exact position
+			draw_arc(center, CELL_SIZE * 0.6, 0, TAU, 16, Color(1.0, 0.0, 0.0, 0.7), 2.0)
 
 func _draw_path_preview() -> void:
 	# Draw dotted path from unit to mouse hover

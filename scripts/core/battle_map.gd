@@ -67,6 +67,11 @@ var fog_explored: Dictionary = {}  # cells that have EVER been seen
 # Terrain editor (extracted)
 var terrain_editor = null
 
+# Child node structure (scene tree IS the render manager)
+var terrain_overlay: Node2D = null
+var entities_node: Node2D = null
+var debug_overlay: Node2D = null
+
 signal cell_selected(pos: Vector2i)
 signal cell_hovered(pos: Vector2i)
 
@@ -78,6 +83,20 @@ func _ready() -> void:
 	terrain_editor = TerrainEditorClass.new(terrain)
 	terrain_editor.terrain_changed.connect(_on_terrain_changed)
 	terrain_editor.generate_test_terrain()
+
+	# Build child node structure for z-ordered rendering
+	# Order matters: terrain below entities below debug overlays
+	terrain_overlay = Node2D.new()
+	terrain_overlay.name = "TerrainOverlay"
+	add_child(terrain_overlay)
+
+	entities_node = Node2D.new()
+	entities_node.name = "Entities"
+	add_child(entities_node)
+
+	debug_overlay = Node2D.new()
+	debug_overlay.name = "DebugOverlay"
+	add_child(debug_overlay)
 
 	# Create pathfinder
 	pathfinder = PathfinderClass.new(terrain)
@@ -121,7 +140,7 @@ func _spawn_test_squad() -> void:
 	for s in soldier_list:
 		s.assign_weapon(WeaponFactory.lee_enfield())
 
-	add_child(squad)
+	entities_node.add_child(squad)
 	squad.setup("Scout Team Alpha", Vector2i(5, 10), soldier_list)
 	units.append(squad)
 
@@ -150,7 +169,7 @@ func _spawn_test_hound() -> void:
 		Vector2i(25, 15),
 	]
 
-	add_child(hound)
+	entities_node.add_child(hound)
 	hound.setup("Hound Alpha", Vector2i(30, 15), waypoints)
 	hostiles.append(hound)
 

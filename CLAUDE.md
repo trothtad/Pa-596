@@ -42,6 +42,8 @@ pa-596/
 │   │   ├── detection.gd           # Detection system — sight/hearing/seismic
 │   │   ├── pathfinder.gd          # A* pathfinding (8-dir, terrain-cost-aware)
 │   │   ├── combat_resolver.gd     # Shot resolution — hit/miss, wounds
+│   │   ├── composure_system.gd    # Pure static — 5-tier composure model
+│   │   ├── fire_control.gd        # Pure static — doctrine-gated fire control
 │   │   ├── combat_math.gd         # Pure static functions (not yet wired in)
 │   │   ├── detection_system.gd    # Pure static functions (not yet wired in)
 │   │   └── terrain_query.gd       # Placeholder (not yet wired in)
@@ -165,6 +167,10 @@ All systems follow this order each tick to prevent mid-tick read of half-updated
 | Detection system | ✅ Working | Bidirectional, sight/hearing/seismic, visual markers |
 | Hound visibility | ✅ Working | Hidden until squad detection reaches IDENTIFIED |
 | Combat resolver | ✅ Working | Per-soldier shot resolution, hit/miss, penetration, wounds |
+| Composure system | ✅ Working | 5-tier model (BROKEN→CONFIDENT), sergeant-as-floor, terror pressure |
+| Fire control | ✅ Working | 4 doctrines (HOLD_FIRE/DEFENSIVE/AGGRESSIVE/AMBUSH), tick-based |
+| Hound proximity terror | ✅ Working | Distance-based composure pressure, cover reduces terror |
+| Ammo tracking | ✅ Working | Low ammo warnings, empty mag detection |
 | Weapon data | ✅ Working | Lee-Enfield, Bren, Sten factory methods |
 | Save/Load terrain | ✅ Working | JSON serialization, F2/F3 keys |
 
@@ -196,6 +202,15 @@ The codebase is transitioning from the current monolithic layout to the architec
 - All files moved from `scripts/core/` to target directories
 - `scripts/core/` deleted
 - 22 path references updated across project
+
+### Phase A: "Squads Shoot Things" ✅
+- ComposureSystem: 5-tier model (BROKEN/BREAKING/SHAKEN/STEADY/CONFIDENT), float 0-100
+- FireControl: 4 doctrines, doctrine-gated engagement, tick-based fire control
+- Tick-based combat: detection → fire_control → combat_resolver pipeline on TickManager
+- Hound proximity terror: distance-based composure pressure, cover reduces terror
+- Firing noise detection feedback: squad_is_firing feeds into hound hearing channel
+- Ammo tracking: low warnings, empty magazine handling
+- Sergeant-as-floor: leader's composure level is minimum for squad
 
 ---
 
@@ -261,10 +276,15 @@ Both squads→hostiles AND hostiles→squads use the detection system. Changes t
 ### Soldiers are data, squads are nodes
 `scripts/entities/soldier.gd` extends RefCounted — no _process, no _draw, no signals. Squad reads soldier data and renders for them. Per-soldier behavior (firing) goes in squad.gd or a new system that squad calls.
 
-### Dual systems (old runs the game, new exists alongside)
-- `weapon_data.gd` (factory methods + `from_json()`) — weapons loaded from JSON via Database
-- `combat_resolver.gd` (RefCounted instance) AND `CombatMath` (static, not yet wired in)
+### Combat pipeline (tick-based)
+- Squad combat runs on TickManager at 10Hz. Tick order: incoming_fire → composure → combat.
+- `fire_control.gd` (static) selects targets and gates engagement per doctrine
+- `composure_system.gd` (static) manages 5-tier composure, bridges to combat_resolver via `to_legacy_composure()`
+- `combat_resolver.gd` (RefCounted instance) resolves individual shots — unchanged, uses old int composure (0/1/2)
+- `CombatMath` (static, not yet wired in) — eventual replacement for combat_resolver
 - `detection.gd` (with hysteresis) AND `DetectionSystem` (static, not yet wired in)
+- `weapon_data.gd` (factory methods + `from_json()`) — weapons loaded from JSON via Database
+- Fields marked `# FUTURE: moves to entity/faction blackboard` are signposted for migration
 
 ### The Pathfinder is shared but copyable
 battle_map.gd creates one pathfinder. The hound creates its own. Both reference the same TerrainData. Create new Pathfinder instances pointing at the same TerrainData as needed.

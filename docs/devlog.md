@@ -1,5 +1,50 @@
 # Pā 596 - Development Log
 
+## Session: 2026-02-12 (Phase A)
+
+### What happened
+- Completed Phase A ("Squads Shoot Things") — 7 commits, closing combat feedback loops
+- Created two new pure static systems:
+  - `composure_system.gd` — 5-tier composure model (BROKEN/BREAKING/SHAKEN/STEADY/CONFIDENT)
+  - `fire_control.gd` — 4-doctrine fire control (HOLD_FIRE/DEFENSIVE/AGGRESSIVE/AMBUSH)
+- Migrated soldier composure from int (0-3) to float (0-100) with tier thresholds
+- Rewired combat from per-frame to tick-based (10Hz via TickManager)
+- Added hound proximity terror: nearby detected hounds apply composure pressure
+- Terrain cover reduces terror (light: 30%, heavy: 60%)
+- Firing noise feeds back into hound detection (squad_is_firing flag)
+- Ammo tracking: low ammo warnings at 25%, empty mag stops fire checks
+
+### Key decisions
+- **Composure as float 0-100** instead of old int 0-3 — gives smooth degradation and recovery
+- **Sergeant-as-floor**: leader's composure tier is minimum for all soldiers (NCO holds the line)
+- **Doctrine controls engagement**: DEFENSIVE (TRACKED only), AGGRESSIVE (IDENTIFIED+), AMBUSH (faster first shot)
+- **Hound proximity as terror stand-in**: hounds don't shoot, but their presence within 10 cells creates composure pressure (closer = worse). FUTURE: incoming gunfire will add its own pressure path.
+- **Keep combat_resolver.gd unchanged**: to_legacy_composure() bridges new 5-tier system to old 0/1/2 int. Replace later when we're ready to rewrite.
+- **No blackboards yet**: composure_value, under_fire, squad_is_firing stored directly on soldier/squad data objects, marked with `# FUTURE: moves to entity/faction blackboard`
+
+### Architecture state
+- Four stateless systems: detection.gd, fire_control.gd, combat_resolver.gd, composure_system.gd
+- squad.gd coordinates: calls systems in tick order (incoming_fire → composure → combat)
+- Detection → FireControl → CombatResolver pipeline fully wired
+- Hound detection spikes when squad fires (hearing channel noise_firing = 5.0)
+- Composure pressure → fire rate degradation → accuracy degradation loop complete
+- Cover reduces terror: buildings provide significant composure protection
+
+### What's next
+- Run the game to verify Phase A (detection → fire → terror → composure → firing degrades)
+- Phase B: "Bodies Get Tired" — fatigue, movement modes, wound effects
+- Or: visual feedback for composure states (soldier color changes, UI indicators)
+- Or: hound attack damage (currently hound's _process_attack is a placeholder)
+
+### Known issues
+- Existing harmless warnings unchanged
+- combat_resolver still uses old int composure (bridged via to_legacy_composure)
+- combat_math.gd (Phase 1 pure static) still not wired in
+- Hound _process_attack() is a placeholder — chases but doesn't damage soldiers
+- Composure log spam possible when hound sits at close range (throttle in future)
+
+---
+
 ## Session: 2026-02-12 (Phase 4)
 
 ### What happened

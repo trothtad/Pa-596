@@ -228,7 +228,7 @@ func _run_detection(delta: float) -> void:
 func _evaluate_detection_transitions(target: Node2D, det_state) -> void:
 	"""Decide whether to change state based on detection awareness.
 	Uses hysteresis-aware labels to prevent threshold oscillation."""
-	var awareness := det_state.get_awareness_label()
+	var awareness: String = det_state.get_awareness_label()
 
 	match state:
 		State.IDLE, State.PATROL:
@@ -282,7 +282,7 @@ func _process_stalk(delta: float) -> void:
 		var target_id = current_target.get_instance_id()
 		if detection_states.has(target_id):
 			var det = detection_states[target_id]
-			var awareness := det.get_awareness_label()
+			var awareness: String = det.get_awareness_label()
 			if awareness == "DETECTED" or awareness == "IDENTIFIED" or awareness == "TRACKED":
 				last_known_target_pos = det.last_known_pos
 

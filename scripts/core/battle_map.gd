@@ -72,7 +72,7 @@ func _ready() -> void:
 
 	# Build child node structure for z-ordered rendering
 	# Order matters: terrain below entities below debug overlays
-	var TerrainOverlayScript = load("res://scripts/core/terrain_overlay.gd")
+	var TerrainOverlayScript = load("res://scripts/managers/terrain_overlay.gd")
 	terrain_overlay = Node2D.new()
 	terrain_overlay.set_script(TerrainOverlayScript)
 	terrain_overlay.name = "TerrainOverlay"
@@ -83,7 +83,7 @@ func _ready() -> void:
 	entities_node.name = "Entities"
 	add_child(entities_node)
 
-	var DebugOverlayScript = load("res://scripts/core/debug_overlay.gd")
+	var DebugOverlayScript = load("res://scripts/managers/debug_overlay.gd")
 	debug_overlay = Node2D.new()
 	debug_overlay.set_script(DebugOverlayScript)
 	debug_overlay.name = "DebugOverlay"

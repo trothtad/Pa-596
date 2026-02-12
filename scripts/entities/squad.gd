@@ -402,9 +402,16 @@ func _process_combat_tick(delta: float) -> void:
 				s.soldier_name, combat_target.entity_name,
 				distance * 4, result["hit_chance"]])
 
-		# Ammo warning
+		# Ammo warnings
 		if s.ammo_current == 0:
 			print("⚠ %s — MAGAZINE EMPTY" % s.soldier_name)
+			s.fire_timer = INF  # stop checking until reload (FUTURE: reload mechanic)
+		elif s.weapon.ammo_capacity > 0:
+			var ammo_pct: float = float(s.ammo_current) / float(s.weapon.ammo_capacity)
+			if ammo_pct <= 0.25 and ammo_pct + (1.0 / float(s.weapon.ammo_capacity)) > 0.25:
+				# Just crossed the 25% threshold
+				print("⚠ %s — LOW AMMO (%d/%d)" % [
+					s.soldier_name, s.ammo_current, s.weapon.ammo_capacity])
 
 		# FUTURE: apply result["suppression_generated"] to target if target_is_soldier
 		# Currently shooting at kaiju — they don't take suppression
@@ -456,6 +463,22 @@ func get_soldier_names() -> String:
 		var prefix = "★" if s.role == "leader" else "-"
 		names.append("%s %s" % [prefix, s.soldier_name])
 	return "\n".join(names)
+
+func get_ammo_status() -> String:
+	"""Squad ammo summary for UI. Returns e.g. '32/50 rounds (64%)'."""
+	var total_current := 0
+	var total_capacity := 0
+	for s in soldiers:
+		if s.state == SoldierClass.State.DEAD:
+			continue
+		if s.weapon == null:
+			continue
+		total_current += s.ammo_current
+		total_capacity += s.weapon.ammo_capacity
+	if total_capacity == 0:
+		return "No ammo"
+	var pct: int = int(float(total_current) / float(total_capacity) * 100.0)
+	return "%d/%d rounds (%d%%)" % [total_current, total_capacity, pct]
 
 # --- Drawing ---
 

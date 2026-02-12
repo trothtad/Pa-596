@@ -37,6 +37,8 @@ var cohesion_range := 80.0    # pixels - max distance before "separated"
 # Combat
 var combat_target: Node2D = null  # current target (hound etc), set by engagement logic
 var resolver = CombatResolverScript.new()  # combat math instance
+var current_doctrine: int = FireControl.Doctrine.DEFENSIVE  # FUTURE: moves to entity blackboard
+var squad_is_firing := false  # true if any soldier fired this tick  # FUTURE: moves to faction blackboard
 
 # Reference to battle map
 var battle_map: Node2D = null

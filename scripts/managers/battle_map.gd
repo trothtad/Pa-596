@@ -381,7 +381,7 @@ func _process_squad_detection(delta: float) -> void:
 				hostile.grid_pos,
 				hostile_target_profile,
 				hostile.is_moving,
-				false,  # hostiles don't fire (yet)
+				hostile.get("is_firing") if hostile.get("is_firing") != null else false,  # FUTURE: hostile ranged attacks
 				has_los,
 				in_concealment,
 				distance,

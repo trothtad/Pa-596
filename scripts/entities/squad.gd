@@ -49,6 +49,7 @@ signal unit_arrived(unit: Node2D)
 
 func _ready() -> void:
 	_snap_soldiers_to_grid()
+	TickManager.tick.connect(_on_tick)
 
 func setup(p_name: String, p_grid_pos: Vector2i, p_soldiers: Array) -> void:
 	"""Initialize squad with name, position, and soldier list."""
@@ -98,8 +99,10 @@ func _process(delta: float) -> void:
 	# Troops steer toward positions near leader
 	_process_troop_movement(delta)
 	
-	# Combat — soldiers fire at target if able
-	_process_combat(delta)
+	# Tick down fire timers each frame (smooth countdown, resolution on tick)
+	for s in soldiers:
+		if s.fire_timer > 0:
+			s.fire_timer -= delta
 	
 	# Update squad grid_pos from leader
 	var old_grid = grid_pos
@@ -173,68 +176,121 @@ func _process_troop_movement(delta: float) -> void:
 		
 		s.steer_toward(desired, delta, battle_map.terrain, battle_map.CELL_SIZE)
 
-func _process_combat(delta: float) -> void:
-	"""Each soldier ticks fire timer, acquires targets, resolves shots."""
+# --- Tick-Based Combat & Composure ---
+
+func _on_tick(_tick_number: int) -> void:
+	"""All combat logic runs at fixed tick rate (10Hz at 1x speed), not per frame."""
 	if not battle_map:
 		return
-	
-	# Target acquisition — find an IDENTIFIED hostile
-	if combat_target == null or (combat_target.has_method("get_instance_id") and combat_target.get("is_dead")):
-		combat_target = _find_combat_target()
+	var tick_delta := 1.0 / TickManager.BASE_TICKS_PER_SECOND
+
+	# Order matters: composure first (affects who can fire), then combat
+	_process_composure_tick(tick_delta)
+	_process_combat_tick(tick_delta)
+
+func _process_composure_tick(delta: float) -> void:
+	"""Update composure for all soldiers. Recovery when safe, decay of under_fire timers."""
+	for s in soldiers:
+		if s.state == SoldierClass.State.DEAD:
+			continue
+
+		# Decay under_fire timer
+		if s.under_fire:
+			s.under_fire_timer -= delta
+			if s.under_fire_timer <= 0:
+				s.under_fire = false
+				s.under_fire_timer = 0.0
+
+		# Recovery (slow when under fire, faster when safe)
+		s.composure_value = ComposureSystem.apply_recovery(
+			s.composure_value, s.under_fire, delta
+		)
+
+	# Sergeant-as-floor: leader's level is the minimum for all soldiers
+	if leader and leader.state != SoldierClass.State.DEAD:
+		for s in soldiers:
+			if s == leader or s.state == SoldierClass.State.DEAD:
+				continue
+			s.composure_value = ComposureSystem.apply_sergeant_floor(
+				s.composure_value, leader.composure_value
+			)
+
+func _process_combat_tick(delta: float) -> void:
+	"""Fire control and shot resolution, runs each tick."""
+	if not battle_map:
+		return
+
+	squad_is_firing = false  # reset each tick, set true if anyone fires
+
+	# Target selection via FireControl — respects doctrine
+	var target_info: Dictionary = FireControl.select_target(
+		battle_map.detected_hostile_positions,
+		grid_pos,
+		current_doctrine
+	)
+
+	if target_info.is_empty():
+		combat_target = null
+		return
+
+	combat_target = target_info.get("hostile")
 	if combat_target == null:
 		return
-	
+
 	var target_grid: Vector2i = combat_target.grid_pos
 	var target_armor: int = combat_target.get("armor") if combat_target.get("armor") != null else 0
 	var target_moving: bool = combat_target.get("is_moving") if combat_target.get("is_moving") != null else false
-	
+	var detection_label: String = target_info.get("detection_label", "UNAWARE")
+
 	# Get cover at target position
 	var cover_val: int = battle_map.terrain.get_cell_property(target_grid, "cover")
 	var cover_mod := 0
 	match cover_val:
 		1: cover_mod = resolver.COVER_LIGHT
 		2: cover_mod = resolver.COVER_HEAVY
-	
+
 	for s in soldiers:
 		if s.state == SoldierClass.State.DEAD:
 			continue
 		if s.weapon == null:
 			continue
-		if not ComposureSystem.can_fire(s.get_composure_level()):  # broken — won't fire
+
+		# Composure check — broken soldiers can't fire
+		var composure_level: int = s.get_composure_level()
+		if not ComposureSystem.can_fire(composure_level):
 			continue
-		
-		# Tick fire timer
-		s.fire_timer -= delta
+
+		# Fire timer not ready (timer decrements in _process per frame)
 		if s.fire_timer > 0:
 			continue
-		
+
 		# Can't fire while moving
 		if s.is_moving:
 			continue
-		
+
 		# Out of ammo?
 		if s.ammo_current <= 0:
 			continue
-		
-		# Range check
-		var shooter_grid = s.get_grid_pos(battle_map.CELL_SIZE)
-		var distance = int(shooter_grid.distance_to(Vector2(target_grid)))
-		if distance > s.weapon.max_range:
-			# Reset timer but don't fire — check again next interval
+
+		# Range and doctrine check
+		var shooter_grid: Vector2i = s.get_grid_pos(battle_map.CELL_SIZE)
+		var distance: int = int(shooter_grid.distance_to(Vector2(target_grid)))
+
+		if not FireControl.should_engage(current_doctrine, detection_label, distance, s.weapon.max_range):
 			s.fire_timer = s.weapon.get_fire_interval() * 0.5  # check again sooner
 			continue
-		
+
 		# LOS check from this soldier's position
-		var visible_cells = battle_map.calculate_los_from(shooter_grid, s.weapon.max_range)
+		var visible_cells: Array[Vector2i] = battle_map.calculate_los_from(shooter_grid, s.weapon.max_range)
 		if target_grid not in visible_cells:
 			s.fire_timer = s.weapon.get_fire_interval() * 0.5
 			continue
-		
+
 		# FIRE!
-		var suppressed = s.suppression > 0.3
-		var fatigue_mod = int(-s.fatigue * 0.15)  # 0 to -15
-		
-		var result = resolver.resolve_full_shot(
+		var suppressed: bool = s.suppression > 0.3
+		var fatigue_mod: int = int(-s.fatigue * 0.15)  # 0 to -15
+
+		var result: Dictionary = resolver.resolve_full_shot(
 			s.weapon,
 			s.accuracy,
 			distance,
@@ -243,15 +299,20 @@ func _process_combat(delta: float) -> void:
 			target_armor,
 			false,  # target is NOT a soldier (it's a kaiju)
 			false,  # shooter not moving (checked above)
-			ComposureSystem.to_legacy_composure(s.get_composure_level()),
+			ComposureSystem.to_legacy_composure(composure_level),
 			suppressed,
 			fatigue_mod
 		)
-		
+
 		# Apply results
 		s.ammo_current -= 1
-		s.fire_timer = s.weapon.get_fire_interval()
-		
+		# Fire rate adjusted by composure and doctrine
+		var base_interval: float = s.weapon.get_fire_interval()
+		var composure_rate: float = ComposureSystem.get_fire_rate_modifier(composure_level)
+		s.fire_timer = FireControl.get_fire_cooldown(current_doctrine, base_interval) * composure_rate
+
+		squad_is_firing = true
+
 		# Log the shot
 		if result["hit"]:
 			if result["penetrated"]:
@@ -269,41 +330,13 @@ func _process_combat(delta: float) -> void:
 			print("⚪ %s misses %s at %dm (%d%%)" % [
 				s.soldier_name, combat_target.entity_name,
 				distance * 4, result["hit_chance"]])
-		
+
 		# Ammo warning
 		if s.ammo_current == 0:
 			print("⚠ %s — MAGAZINE EMPTY" % s.soldier_name)
 
-func _find_combat_target() -> Node2D:
-	"""Find the best hostile to engage. Must be IDENTIFIED or better."""
-	if not battle_map:
-		return null
-	
-	var best_target: Node2D = null
-	var best_distance := INF
-	
-	for hostile in battle_map.hostiles:
-		var hostile_id = hostile.get_instance_id()
-		
-		# Must be detected to IDENTIFIED level
-		if battle_map.squad_detection_states.has(hostile_id):
-			var det = battle_map.squad_detection_states[hostile_id]
-			if det.detection_level < DetectionClass.THRESHOLD_IDENTIFIED:
-				continue
-		else:
-			continue
-		
-		# Skip dead hostiles
-		if hostile.get("is_dead"):
-			continue
-		
-		# Pick closest
-		var dist = grid_pos.distance_to(Vector2(hostile.grid_pos))
-		if dist < best_distance:
-			best_distance = dist
-			best_target = hostile
-	
-	return best_target
+		# FUTURE: apply result["suppression_generated"] to target if target_is_soldier
+		# Currently shooting at kaiju — they don't take suppression
 
 func _finish_movement() -> void:
 	is_moving = false

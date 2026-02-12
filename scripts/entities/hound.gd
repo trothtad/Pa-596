@@ -210,7 +210,7 @@ func _run_detection(delta: float) -> void:
 			target_grid,
 			squad_target_profile,
 			unit.is_moving,
-			false,  # is_firing — not implemented yet
+			unit.get("squad_is_firing") if unit.get("squad_is_firing") != null else false,
 			has_los,
 			in_concealment,
 			distance,

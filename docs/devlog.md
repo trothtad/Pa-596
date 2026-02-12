@@ -1,5 +1,43 @@
 # Pā 596 - Development Log
 
+## Session: 2026-02-12 (Phase 4)
+
+### What happened
+- Completed Phase 4 (File Reorganization) — 7 commits, bottom-up migration
+- Moved all 15 files from `scripts/core/` to target directories:
+  - `autoloads/`: game_state, terrain_manager (+ existing tick_manager, database)
+  - `data/`: terrain_data, weapon_data
+  - `entities/`: squad, soldier, hound, unit (legacy)
+  - `systems/`: detection, pathfinder, combat_resolver (+ existing combat_math, detection_system, terrain_query)
+  - `managers/`: battle_map, terrain_overlay, debug_overlay
+  - `scripts/main.gd` at root level
+- Updated 22 path references across project.godot, main.tscn, and 4 .gd files
+- Deleted `scripts/core/` directory
+- Updated CLAUDE.md project structure to reflect new layout
+
+### Strategy
+- **Bottom-up**: moved leaf files (no outbound preloads) first, hub files last
+- Each commit left the game runnable — verified with `grep` for stale `scripts/core/` refs
+- .uid files moved alongside .gd files (some were untracked, now committed)
+- class_name files (TerrainData) needed zero path updates — Godot resolves by class registry
+
+### Architecture state
+- All scripts now in target directories matching ARCHITECTURE.md layout
+- No more `scripts/core/` — new files go in `entities/`, `systems/`, `managers/`, etc.
+- Old systems still run the game; pure function systems still not wired in
+- Scale mismatch still present (4m/cell in code, 1m/cell in JSON)
+
+### What's next
+- Run the game to verify Phase 4 moves didn't break anything
+- Begin Phase A: "Squads Shoot Things" — basic firing, cover, suppression, composure
+- All the plumbing is ready: tick-based detection, DB-driven weapons with range/accuracy, combat resolver
+
+### Known issues
+- Some .uid files from earlier phases may not be committed yet
+- Existing harmless warnings unchanged
+
+---
+
 ## Session: 2026-02-12 (Phase 3)
 
 ### What happened

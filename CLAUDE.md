@@ -19,71 +19,55 @@ Pā 596 is a **tactical real-time strategy game** with a persistent campaign lay
 
 ## Project Structure
 
-### Current Layout (everything in scripts/core/)
+### Project Layout
 
 ```
 pa-596/
-├── scripts/core/              # All game scripts (current)
-│   ├── terrain_data.gd        # TerrainData Resource — cell properties, LOS, serialization
-│   ├── battle_map.gd          # Renderer, input, fog of war, detection, squad/hound spawning
-│   ├── main.gd                # Camera, mode switching, HUD
-│   ├── game_state.gd          # Autoload — mode, debug toggles
-│   ├── terrain_manager.gd     # Autoload — coordinate conversion, debug colors
-│   ├── pathfinder.gd          # A* pathfinding (8-dir, terrain-cost-aware)
-│   ├── squad.gd               # Squad node — rubber-band formation, A* leader movement
-│   ├── soldier.gd             # Soldier data (RefCounted) — position, state, steering
-│   ├── hound.gd               # Hound AI — 6-state machine, detection-driven
-│   ├── detection.gd           # Detection system — sight/hearing/seismic channels
-│   ├── combat_resolver.gd     # Shot resolution — hit/miss, penetration, wounds
-│   ├── weapon_data.gd         # Weapon stats — factory methods for Lee-Enfield, Bren, Sten
-│   └── unit.gd                # LEGACY — superseded by squad.gd
-├── scenes/
-│   └── main.tscn              # Main scene (Main > BattleMap + Camera2D + UI)
-├── docs/
-│   ├── ARCHITECTURE.md        # *** CANONICAL ARCHITECTURE SPEC ***
-│   ├── squad_architecture_sketch.md
-│   ├── hound_design_sketch.md
-│   ├── Pa_596_Lore_Compilation.txt
-│   ├── devlog.md              # Development log
-│   └── OUTDATED/              # Superseded planning docs
-├── assets/                    # Graphics, audio, fonts
-├── resources/                 # Godot resources (.tres, textures)
-├── project.godot
-└── CLAUDE.md                  # You are here
-```
-
-### Target Layout (from ARCHITECTURE.md)
-
-The codebase is migrating to this structure. See Migration Roadmap below.
-
-```
-pa-596/
-├── data/                       # JSON databases
-│   ├── base/                   # weapons.json, soldiers.json, squads.json, hostiles.json
-│   ├── terrain/                # terrain_types.json
-│   └── effects/                # Status effects (future)
-├── maps/                       # Per-map folders (image + terrain.json + meta.json)
 ├── scripts/
-│   ├── autoloads/              # game_state, tick_manager, database
-│   ├── data/                   # Data parser classes
-│   ├── systems/                # Pure logic (combat_math, detection_system, terrain_query)
-│   ├── ai/                     # HoundBrain + state scripts
-│   ├── entities/               # squad, soldier, hound
-│   ├── managers/               # battle_manager, render_manager, input_manager
-│   └── tools/                  # terrain_editor
+│   ├── main.gd                    # Camera, mode switching, HUD (scene root)
+│   ├── autoloads/                 # Global singletons
+│   │   ├── game_state.gd          # Mode, debug toggles
+│   │   ├── terrain_manager.gd     # Coordinate conversion, debug colors
+│   │   ├── tick_manager.gd        # 10Hz simulation heartbeat, speed control
+│   │   └── database.gd            # JSON loader with schema validation
+│   ├── data/                      # Data classes (RefCounted)
+│   │   ├── terrain_data.gd        # TerrainData Resource — cell properties, LOS
+│   │   └── weapon_data.gd         # Weapon stats — factory methods + from_json()
+│   ├── entities/                  # Game entities (Node2D or RefCounted)
+│   │   ├── squad.gd               # Squad node — rubber-band formation, A* movement
+│   │   ├── soldier.gd             # Soldier data (RefCounted) — position, state
+│   │   ├── hound.gd               # Hound AI — 6-state machine, detection-driven
+│   │   └── unit.gd                # LEGACY — superseded by squad.gd
+│   ├── systems/                   # Logic systems
+│   │   ├── detection.gd           # Detection system — sight/hearing/seismic
+│   │   ├── pathfinder.gd          # A* pathfinding (8-dir, terrain-cost-aware)
+│   │   ├── combat_resolver.gd     # Shot resolution — hit/miss, wounds
+│   │   ├── combat_math.gd         # Pure static functions (not yet wired in)
+│   │   ├── detection_system.gd    # Pure static functions (not yet wired in)
+│   │   └── terrain_query.gd       # Placeholder (not yet wired in)
+│   ├── managers/                  # Orchestration + rendering
+│   │   ├── battle_map.gd          # Data, input, detection, fog, entity spawning
+│   │   ├── terrain_overlay.gd     # Terrain cell rendering + fog darkening
+│   │   └── debug_overlay.gd       # Grid, LOS, detection markers, path preview
+│   └── tools/                     # Editor tools
+│       └── terrain_editor.gd      # Brush painting, elevation, save/load
+├── data/                          # JSON databases
+│   ├── base/                      # weapons, soldiers, squads, hostiles + schemas
+│   └── terrain/                   # terrain_types.json + schema
 ├── scenes/
-│   ├── battle/                 # Battle-specific scenes
-│   └── editor/                 # Map editor scenes
-└── ...
+│   └── main.tscn                  # Main scene (Main > BattleMap + Camera2D + UI)
+├── docs/
+│   ├── ARCHITECTURE.md            # Canonical architecture spec
+│   ├── devlog.md                  # Development log
+│   └── ...                        # Design sketches, lore
+├── project.godot
+└── CLAUDE.md                      # You are here
 ```
 
 ### Autoloads (registered in project.godot)
 
-Current:
-- `GameState` → `scripts/core/game_state.gd`
-- `TerrainManager` → `scripts/core/terrain_manager.gd`
-
-Adding (Phase 1):
+- `GameState` → `scripts/autoloads/game_state.gd`
+- `TerrainManager` → `scripts/autoloads/terrain_manager.gd`
 - `TickManager` → `scripts/autoloads/tick_manager.gd`
 - `Database` → `scripts/autoloads/database.gd`
 
@@ -196,22 +180,22 @@ The codebase is transitioning from the current monolithic layout to the architec
 3. Add `Database` autoload (central JSON loader with schema validation)
 4. Create `scripts/systems/` with pure function modules (`CombatMath`, `DetectionSystem`, `TerrainQuery`)
 
-### Phase 2: Extraction
-1. Extract terrain editor from `battle_map.gd` → `tools/terrain_editor.gd`
-2. Extract rendering → `managers/render_manager.gd`
-3. Extract input → `managers/input_manager.gd`
-4. What remains becomes `managers/battle_manager.gd`
+### Phase 2: Extraction ✅
+- Extracted terrain editor → `scripts/tools/terrain_editor.gd`
+- Extracted rendering → `scripts/managers/terrain_overlay.gd` + `debug_overlay.gd`
+- `battle_map.gd` retains data, input, detection orchestration, entity spawning
 
-### Phase 3: Entity Refactor
-1. Refactor `squad.gd` to query `Database` instead of storing weapon/soldier definitions
-2. Refactor `hound.gd` to use `HoundBrain` (extracted state machine)
-3. Connect all entities to `TickManager`
-4. Reconcile scale (current 4m/cell → target 1m/cell)
+### Phase 3: Entity Refactor ✅
+- Squad and Hound spawn from Database JSON templates
+- Detection has hysteresis (prevents threshold oscillation)
+- Detection runs on TickManager tick signal at 10Hz
+- HoundBrain extraction deferred (future)
+- Scale reconciliation deferred (future)
 
-### Phase 4: Cleanup
-1. Move `scripts/core/` contents to appropriate new folders
-2. Delete empty `scripts/core/`
-3. Update scene references
+### Phase 4: File Reorganization ✅
+- All files moved from `scripts/core/` to target directories
+- `scripts/core/` deleted
+- 22 path references updated across project
 
 ---
 
@@ -268,28 +252,25 @@ Do NOT write like brian_johnsons_johnson_slop.txt (it's in docs/ as a negative e
 
 ## Important Context for Code Changes
 
-### battle_map.gd is being SPLIT
-`battle_map.gd` (~850 lines) currently handles rendering, input, detection orchestration, fog of war, terrain painting, and squad/hound spawning. Phase 2 will split it into `render_manager.gd`, `input_manager.gd`, `battle_manager.gd`, and `terrain_editor.gd`. Don't add major new features to it — plan for the split.
+### battle_map.gd (`scripts/managers/battle_map.gd`)
+The orchestration hub (~540 lines). Handles data, input, detection processing, fog of war, and DB-driven entity spawning. Rendering is delegated to child nodes: TerrainOverlay (terrain cells), DebugOverlay (grid, LOS, detection markers). Terrain painting is delegated to terrain_editor.gd.
 
 ### Detection is bidirectional
-Both squads→hostiles AND hostiles→squads use the detection system. Changes to detection.gd affect both sides. The hound runs its own detection in hound.gd; the squad side runs in battle_map.gd's `_process_squad_detection()`.
+Both squads→hostiles AND hostiles→squads use the detection system. Changes to `scripts/systems/detection.gd` affect both sides. The hound runs its own detection in `scripts/entities/hound.gd`; the squad side runs in battle_map.gd's `_process_squad_detection()`. Detection runs on TickManager at 10Hz.
 
 ### Soldiers are data, squads are nodes
-Soldier.gd extends RefCounted — no _process, no _draw, no signals. Squad reads soldier data and renders for them. Per-soldier behavior (firing) goes in squad.gd or a new system that squad calls.
+`scripts/entities/soldier.gd` extends RefCounted — no _process, no _draw, no signals. Squad reads soldier data and renders for them. Per-soldier behavior (firing) goes in squad.gd or a new system that squad calls.
 
-### Dual systems during migration
-After Phase 1, old and new systems coexist:
-- `weapon_data.gd` (factory methods) AND `data/base/weapons.json` (Database lookups)
-- `combat_resolver.gd` (RefCounted instance) AND `CombatMath` (static pure functions)
-- `detection.gd` (DetectionProfile class) AND `DetectionSystem` (static pure functions)
-
-The old code runs the game. The new code is available but not wired in. Phase 2-3 progressively replaces old with new.
+### Dual systems (old runs the game, new exists alongside)
+- `weapon_data.gd` (factory methods + `from_json()`) — weapons loaded from JSON via Database
+- `combat_resolver.gd` (RefCounted instance) AND `CombatMath` (static, not yet wired in)
+- `detection.gd` (with hysteresis) AND `DetectionSystem` (static, not yet wired in)
 
 ### The Pathfinder is shared but copyable
 battle_map.gd creates one pathfinder. The hound creates its own. Both reference the same TerrainData. Create new Pathfinder instances pointing at the same TerrainData as needed.
 
 ### unit.gd is legacy
-Superseded by squad.gd. Don't build on it.
+In `scripts/entities/`. Superseded by squad.gd. Don't build on it.
 
 ---
 

@@ -240,13 +240,22 @@ func _process_incoming_fire(delta: float) -> void:
 		else:
 			continue  # too far to feel terror
 
-		# Apply pressure to each living soldier
+		# Apply pressure to each living soldier (reduced by terrain cover)
 		for s in soldiers:
 			if s.state == SoldierClass.State.DEAD:
 				continue
 
+			# Cover reduces terror: soldiers in buildings feel safer
+			var soldier_pressure: float = pressure
+			var soldier_grid: Vector2i = s.get_grid_pos(battle_map.CELL_SIZE)
+			if battle_map.terrain.is_valid_cell(soldier_grid):
+				var cover_val: int = battle_map.terrain.get_cell_property(soldier_grid, "cover")
+				match cover_val:
+					1: soldier_pressure *= 0.7   # light cover: 30% reduction
+					2: soldier_pressure *= 0.4   # heavy cover: 60% reduction
+
 			s.composure_value = ComposureSystem.apply_pressure(
-				s.composure_value, pressure, delta
+				s.composure_value, soldier_pressure, delta
 			)
 			s.under_fire = true
 			s.under_fire_timer = 1.0  # 1 second window

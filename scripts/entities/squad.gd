@@ -184,9 +184,80 @@ func _on_tick(_tick_number: int) -> void:
 		return
 	var tick_delta := 1.0 / TickManager.BASE_TICKS_PER_SECOND
 
-	# Order matters: composure first (affects who can fire), then combat
+	# Order matters: incoming fire → composure update → fire control
+	# Pressure applied first, then recovery/floor, then shooting
+	_process_incoming_fire(tick_delta)
 	_process_composure_tick(tick_delta)
 	_process_combat_tick(tick_delta)
+
+func _process_incoming_fire(delta: float) -> void:
+	"""Apply composure pressure from nearby threats.
+	Hound proximity terror is the Phase A stand-in for incoming fire.
+	Closer = more terrifying. FUTURE: incoming gunfire suppression added here."""
+	if not battle_map:
+		return
+
+	# Terror range bands (in cells)
+	const TERROR_CLOSE := 3      # massive pressure — right on top of you
+	const TERROR_MEDIUM := 6     # moderate pressure — closing fast
+	const TERROR_FAR := 10       # mild unease — something's out there
+
+	# Pressure amounts (composure points/sec)
+	const PRESSURE_CLOSE := 25.0   # 4 seconds from STEADY to BROKEN at close range
+	const PRESSURE_MEDIUM := 10.0  # noticeable but manageable
+	const PRESSURE_FAR := 3.0      # creeping dread
+
+	for hostile in battle_map.hostiles:
+		if hostile.get("is_dead"):
+			continue
+
+		var hostile_grid: Vector2i = hostile.grid_pos
+		var dist: float = grid_pos.distance_to(Vector2(hostile_grid))
+
+		# Only apply terror if hound is detected (you can't fear what you don't know about)
+		var hostile_id: int = hostile.get_instance_id()
+		var is_known := false
+		if battle_map.detected_hostile_positions.has(hostile_id):
+			var info: Dictionary = battle_map.detected_hostile_positions[hostile_id]
+			var label: String = info.get("label", "UNAWARE")
+			# Need at least DETECTED to feel terror (you sense something is there)
+			is_known = label in ["DETECTED", "IDENTIFIED", "TRACKED"]
+
+		if not is_known:
+			continue
+
+		# Determine pressure based on distance
+		var pressure := 0.0
+		if dist <= TERROR_CLOSE:
+			pressure = PRESSURE_CLOSE
+		elif dist <= TERROR_MEDIUM:
+			# Linear interpolation between close and medium
+			var t: float = (dist - TERROR_CLOSE) / (TERROR_MEDIUM - TERROR_CLOSE)
+			pressure = lerpf(PRESSURE_CLOSE, PRESSURE_MEDIUM, t)
+		elif dist <= TERROR_FAR:
+			var t: float = (dist - TERROR_MEDIUM) / (TERROR_FAR - TERROR_MEDIUM)
+			pressure = lerpf(PRESSURE_MEDIUM, PRESSURE_FAR, t)
+		else:
+			continue  # too far to feel terror
+
+		# Apply pressure to each living soldier
+		for s in soldiers:
+			if s.state == SoldierClass.State.DEAD:
+				continue
+
+			s.composure_value = ComposureSystem.apply_pressure(
+				s.composure_value, pressure, delta
+			)
+			s.under_fire = true
+			s.under_fire_timer = 1.0  # 1 second window
+
+		# Log significant composure drops (only on first detection of close threat)
+		if pressure >= PRESSURE_CLOSE and leader:
+			var leader_level: int = leader.get_composure_level()
+			var level_name: String = ComposureSystem.get_level_name(leader_level)
+			if leader_level <= ComposureSystem.Level.SHAKEN:
+				print("😰 %s — composure %s (hostile at %d cells)" % [
+					squad_name, level_name, int(dist)])
 
 func _process_composure_tick(delta: float) -> void:
 	"""Update composure for all soldiers. Recovery when safe, decay of under_fire timers."""

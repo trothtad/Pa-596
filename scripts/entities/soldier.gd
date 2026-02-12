@@ -31,6 +31,7 @@ var ammo_current := 10         # current ammo (set from weapon on assign)
 var fire_timer := 0.0          # seconds until next shot (counts down)
 var suppression := 0.0         # 0.0 = calm, 1.0 = fully suppressed  # FUTURE: moves to entity blackboard
 var composure_value := 70.0    # 0-100 float, higher = calmer (STEADY tier)  # FUTURE: moves to entity blackboard
+var last_composure_level: int = ComposureSystem.Level.STEADY  # tracks previous tick for transition detection
 var under_fire := false        # currently receiving incoming fire/terror  # FUTURE: moves to entity blackboard
 var under_fire_timer := 0.0    # seconds remaining in under_fire state
 

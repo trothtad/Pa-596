@@ -245,6 +245,12 @@ func _process_incoming_fire(delta: float) -> void:
 			if s.state == SoldierClass.State.DEAD:
 				continue
 
+			# Already BROKEN — no point hammering further, they're done
+			if s.get_composure_level() == ComposureSystem.Level.BROKEN:
+				s.under_fire = true
+				s.under_fire_timer = 1.0
+				continue
+
 			# Cover reduces terror: soldiers in buildings feel safer
 			var soldier_pressure: float = pressure
 			var soldier_grid: Vector2i = s.get_grid_pos(battle_map.CELL_SIZE)
@@ -260,16 +266,12 @@ func _process_incoming_fire(delta: float) -> void:
 			s.under_fire = true
 			s.under_fire_timer = 1.0  # 1 second window
 
-		# Log significant composure drops (only on first detection of close threat)
-		if pressure >= PRESSURE_CLOSE and leader:
-			var leader_level: int = leader.get_composure_level()
-			var level_name: String = ComposureSystem.get_level_name(leader_level)
-			if leader_level <= ComposureSystem.Level.SHAKEN:
-				print("😰 %s — composure %s (hostile at %d cells)" % [
-					squad_name, level_name, int(dist)])
-
 func _process_composure_tick(delta: float) -> void:
-	"""Update composure for all soldiers. Recovery when safe, decay of under_fire timers."""
+	"""Update composure for all soldiers. Recovery when safe, decay of under_fire timers.
+	BROKEN soldiers cannot recover while any hostile is still detected."""
+	# Check if any hostile is currently known (for BROKEN recovery lockout)
+	var threats_detected := not battle_map.detected_hostile_positions.is_empty()
+
 	for s in soldiers:
 		if s.state == SoldierClass.State.DEAD:
 			continue
@@ -281,10 +283,30 @@ func _process_composure_tick(delta: float) -> void:
 				s.under_fire = false
 				s.under_fire_timer = 0.0
 
-		# Recovery (slow when under fire, faster when safe)
-		s.composure_value = ComposureSystem.apply_recovery(
-			s.composure_value, s.under_fire, delta
-		)
+		# BROKEN soldiers can't recover while threats are detected
+		# They've lost it — only safety lets them pull themselves together
+		var current_level: int = s.get_composure_level()
+		if current_level == ComposureSystem.Level.BROKEN and threats_detected:
+			# Still locked in BROKEN state — no recovery
+			pass
+		else:
+			# Recovery (slow when under fire, faster when safe)
+			s.composure_value = ComposureSystem.apply_recovery(
+				s.composure_value, s.under_fire, delta
+			)
+
+		# Detect level transitions and log them
+		var new_level: int = s.get_composure_level()
+		if new_level != s.last_composure_level:
+			var old_name: String = ComposureSystem.get_level_name(s.last_composure_level)
+			var new_name: String = ComposureSystem.get_level_name(new_level)
+			if new_level < s.last_composure_level:
+				# Degrading
+				print("😰 %s %s — %s → %s" % [squad_name, s.soldier_name, old_name, new_name])
+			else:
+				# Recovering
+				print("😌 %s %s — %s → %s" % [squad_name, s.soldier_name, old_name, new_name])
+			s.last_composure_level = new_level
 
 	# Sergeant-as-floor: leader's level is the minimum for all soldiers
 	if leader and leader.state != SoldierClass.State.DEAD:

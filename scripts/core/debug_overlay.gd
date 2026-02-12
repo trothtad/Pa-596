@@ -4,7 +4,7 @@
 # Child Node2D of BattleMap — drawn above entities.
 extends Node2D
 
-const DetectionClass = preload("res://scripts/core/detection.gd")
+const DetectionClass = preload("res://scripts/systems/detection.gd")
 
 # Reference to the parent battle_map for data access
 var battle_manager: Node2D = null

@@ -4,10 +4,10 @@
 # Click any soldier, select the squad leader
 extends Node2D
 
-const PathfinderClass = preload("res://scripts/core/pathfinder.gd")
-const SoldierClass = preload("res://scripts/core/soldier.gd")
-const DetectionClass = preload("res://scripts/core/detection.gd")
-const CombatResolverScript = preload("res://scripts/core/combat_resolver.gd")
+const PathfinderClass = preload("res://scripts/systems/pathfinder.gd")
+const SoldierClass = preload("res://scripts/entities/soldier.gd")
+const DetectionClass = preload("res://scripts/systems/detection.gd")
+const CombatResolverScript = preload("res://scripts/systems/combat_resolver.gd")
 
 # Squad identity
 var squad_name := "Squad"

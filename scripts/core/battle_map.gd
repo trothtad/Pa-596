@@ -3,10 +3,10 @@
 # This is the visual heart of the tactical layer
 extends Node2D
 
-const PathfinderClass = preload("res://scripts/core/pathfinder.gd")
-const SoldierClass = preload("res://scripts/core/soldier.gd")
+const PathfinderClass = preload("res://scripts/systems/pathfinder.gd")
+const SoldierClass = preload("res://scripts/entities/soldier.gd")
 const HoundClass = preload("res://scripts/core/hound.gd")
-const DetectionClass = preload("res://scripts/core/detection.gd")
+const DetectionClass = preload("res://scripts/systems/detection.gd")
 const TerrainEditorClass = preload("res://scripts/tools/terrain_editor.gd")
 
 # Grid settings
@@ -134,7 +134,7 @@ func _spawn_squad_from_database(template_id: String, grid_pos: Vector2i) -> void
 
 	# Build soldiers from composition
 	var soldier_list = []
-	var WeaponFactory = load("res://scripts/core/weapon_data.gd").new()
+	var WeaponFactory = load("res://scripts/data/weapon_data.gd").new()
 	var soldier_index := 0
 	for comp in squad_data.get("composition", []):
 		var soldier_template_id: String = comp.get("template", "rifleman_base")

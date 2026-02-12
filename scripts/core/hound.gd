@@ -3,8 +3,8 @@
 # A predator on the map. Simple state machine, terrifying implications.
 extends Node2D
 
-const PathfinderClass = preload("res://scripts/core/pathfinder.gd")
-const DetectionClass = preload("res://scripts/core/detection.gd")
+const PathfinderClass = preload("res://scripts/systems/pathfinder.gd")
+const DetectionClass = preload("res://scripts/systems/detection.gd")
 
 # --- State Machine ---
 enum State { IDLE, PATROL, STALK, CHASE, ATTACK, SEARCH }

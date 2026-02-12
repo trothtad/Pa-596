@@ -5,7 +5,7 @@ extends Node2D
 
 const PathfinderClass = preload("res://scripts/systems/pathfinder.gd")
 const SoldierClass = preload("res://scripts/entities/soldier.gd")
-const HoundClass = preload("res://scripts/core/hound.gd")
+const HoundClass = preload("res://scripts/entities/hound.gd")
 const DetectionClass = preload("res://scripts/systems/detection.gd")
 const TerrainEditorClass = preload("res://scripts/tools/terrain_editor.gd")
 
@@ -127,7 +127,7 @@ func _spawn_squad_from_database(template_id: String, grid_pos: Vector2i) -> void
 		push_warning("BattleMap: unknown squad template '%s'" % template_id)
 		return
 
-	var squad_script = load("res://scripts/core/squad.gd")
+	var squad_script = load("res://scripts/entities/squad.gd")
 	var squad = Node2D.new()
 	squad.set_script(squad_script)
 	squad.battle_map = self
@@ -181,7 +181,7 @@ func _spawn_squad_from_database(template_id: String, grid_pos: Vector2i) -> void
 
 func _spawn_hound_from_database(template_id: String, grid_pos: Vector2i, waypoints: Array[Vector2i]) -> void:
 	"""Spawn a hound using Database lookups for stats and detection profiles."""
-	var hound_script = load("res://scripts/core/hound.gd")
+	var hound_script = load("res://scripts/entities/hound.gd")
 	var hound = Node2D.new()
 	hound.set_script(hound_script)
 	hound.battle_map = self

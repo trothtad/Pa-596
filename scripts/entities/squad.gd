@@ -198,7 +198,7 @@ func _process_combat(delta: float) -> void:
 			continue
 		if s.weapon == null:
 			continue
-		if s.composure >= 3:  # broken — won't fire
+		if not ComposureSystem.can_fire(s.get_composure_level()):  # broken — won't fire
 			continue
 		
 		# Tick fire timer
@@ -241,7 +241,7 @@ func _process_combat(delta: float) -> void:
 			target_armor,
 			false,  # target is NOT a soldier (it's a kaiju)
 			false,  # shooter not moving (checked above)
-			s.composure,
+			ComposureSystem.to_legacy_composure(s.get_composure_level()),
 			suppressed,
 			fatigue_mod
 		)

@@ -29,8 +29,10 @@ var weapon = null               # WeaponData instance, assigned at spawn
 var accuracy := 65             # base accuracy (d100 roll-under)
 var ammo_current := 10         # current ammo (set from weapon on assign)
 var fire_timer := 0.0          # seconds until next shot (counts down)
-var suppression := 0.0         # 0.0 = calm, 1.0 = fully suppressed
-var composure := 0             # 0=steady, 1=shaken, 2=panicked, 3=broken
+var suppression := 0.0         # 0.0 = calm, 1.0 = fully suppressed  # FUTURE: moves to entity blackboard
+var composure_value := 70.0    # 0-100 float, higher = calmer (STEADY tier)  # FUTURE: moves to entity blackboard
+var under_fire := false        # currently receiving incoming fire/terror  # FUTURE: moves to entity blackboard
+var under_fire_timer := 0.0    # seconds remaining in under_fire state
 
 # Formation offset (set once at spawn, persistent)
 var formation_offset := Vector2.ZERO
@@ -123,3 +125,7 @@ func steer_toward(target: Vector2, delta: float, terrain: TerrainData = null, ce
 
 func get_grid_pos(cell_size: int = 32) -> Vector2i:
 	return Vector2i(int(world_pos.x / cell_size), int(world_pos.y / cell_size))
+
+func get_composure_level() -> int:
+	"""Returns ComposureSystem.Level enum value for this soldier's composure."""
+	return ComposureSystem.get_level(composure_value)

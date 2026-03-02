@@ -22,7 +22,8 @@ var state: int = State.IDLE
 # Properties
 var morale_modifier := 0.0  # personal bravery offset (-10 to +10)
 var fatigue := 0.0
-var wound_state := 0  # 0=fine, 1=light, 2=serious, 3=critical
+var wound_state := 0        # 0=fine, 1=light, 2=serious, 3=critical
+var wound_notified := false # true once squad has applied composure shock for this wound
 var death_handled := false  # true once squad has processed this soldier's death
 
 # Combat
@@ -71,7 +72,7 @@ func steer_toward(target: Vector2, delta: float, terrain: TerrainData = null, ce
 		return
 	
 	is_moving = true
-	var speed = move_speed
+	var speed = move_speed * get_wound_speed_modifier()
 	
 	if terrain:
 		# Check what cell we're currently in
@@ -131,3 +132,19 @@ func get_grid_pos(cell_size: int = 32) -> Vector2i:
 func get_composure_level() -> int:
 	"""Returns ComposureSystem.Level enum value for this soldier's composure."""
 	return ComposureSystem.get_level(composure_value)
+
+func get_wound_accuracy_modifier() -> int:
+	"""Accuracy penalty from wounds. Applied as a negative modifier to hit chance."""
+	match wound_state:
+		1: return -10   # light — still functional
+		2: return -25   # serious — aim is shot
+		3: return -40   # critical — barely firing
+		_: return 0
+
+func get_wound_speed_modifier() -> float:
+	"""Speed multiplier from wounds. 1.0 = full speed, lower = dragging."""
+	match wound_state:
+		1: return 0.85  # light — hobbling
+		2: return 0.5   # serious — struggling
+		3: return 0.2   # critical — crawling
+		_: return 1.0

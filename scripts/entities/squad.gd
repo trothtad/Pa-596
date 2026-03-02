@@ -399,7 +399,7 @@ func _process_combat_tick(delta: float) -> void:
 
 		# FIRE!
 		var suppressed: bool = s.suppression > 0.3
-		var fatigue_mod: int = int(-s.fatigue * 0.15)  # 0 to -15
+		var fatigue_mod: int = int(-s.fatigue * 0.15) + s.get_wound_accuracy_modifier()  # fatigue + wound penalty
 
 		var result: Dictionary = resolver.resolve_full_shot(
 			s.weapon,
@@ -534,8 +534,15 @@ func _count_living() -> int:
 	return count
 
 func _process_casualties() -> void:
-	"""Detect newly-dead soldiers and trigger reporting and leader promotion."""
+	"""Detect newly-wounded or newly-dead soldiers and trigger effects."""
 	for s in soldiers:
+		# New wound on a living soldier — composure shock
+		if s.wound_state > 0 and not s.wound_notified and s.state != SoldierClass.State.DEAD:
+			s.wound_notified = true
+			s.composure_value -= 15.0 * s.wound_state
+			s.composure_value = maxf(s.composure_value, 0.0)
+
+		# Death — report and handle leadership
 		if s.state == SoldierClass.State.DEAD and not s.death_handled:
 			s.death_handled = true
 			_on_soldier_died(s)

@@ -560,6 +560,13 @@ func _on_soldier_died(dead_soldier) -> void:
 		squad_name, dead_soldier.soldier_name, alive, soldiers.size()
 	])
 
+	# Composure shock — watching a squadmate die is devastating.
+	# Losing the NCO is worse (panic can cascade quickly without leadership).
+	var shock := 40.0 if was_leader else 20.0
+	for s in soldiers:
+		if s.state != SoldierClass.State.DEAD:
+			s.composure_value = ComposureSystem.apply_pressure(s.composure_value, shock, 1.0)
+
 	# If the leader went down, promote the first living soldier
 	if was_leader:
 		for candidate in soldiers:

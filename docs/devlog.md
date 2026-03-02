@@ -30,18 +30,26 @@
 - Composure pressure → fire rate degradation → accuracy degradation loop complete
 - Cover reduces terror: buildings provide significant composure protection
 
+### Post-session tuning (Red)
+- Formation spread widened: 32→64px, spawn scatter increased (more natural look)
+- Terror pressure values reduced: close 25→15, medium 10→4, far 3→1 (less punishing)
+- BROKEN lockout added: soldiers can't recover composure while any hostile is detected
+- Composure logging now transition-only (STEADY→SHAKEN etc), not every tick
+
 ### What's next
-- Run the game to verify Phase A (detection → fire → terror → composure → firing degrades)
-- Phase B: "Bodies Get Tired" — fatigue, movement modes, wound effects
-- Or: visual feedback for composure states (soldier color changes, UI indicators)
-- Or: hound attack damage (currently hound's _process_attack is a placeholder)
+- **Phase A.5: "Things Bite Back"** — see CLAUDE.md for 6-commit breakdown:
+  1. Hound melee attack (damage soldiers)
+  2. Squad casualty handling (death, leader promotion)
+  3. Wound effects (accuracy/speed penalties)
+  4. Casualty composure shock (squadmate death hits morale)
+  5. Reload mechanic (empty mag → timed reload)
+  6. Squad wipe detection
 
 ### Known issues
-- Existing harmless warnings unchanged
 - combat_resolver still uses old int composure (bridged via to_legacy_composure)
 - combat_math.gd (Phase 1 pure static) still not wired in
 - Hound _process_attack() is a placeholder — chases but doesn't damage soldiers
-- Composure log spam possible when hound sits at close range (throttle in future)
+- Soldier State enum partially unused (PRONE, PINNED, WOUNDED, PANICKED never set)
 
 ---
 

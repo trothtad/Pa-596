@@ -176,6 +176,80 @@ All systems follow this order each tick to prevent mid-tick read of half-updated
 
 ---
 
+## What's NOT Built Yet (in priority order)
+
+### Phase A.5: "Things Bite Back" — THE CURRENT PRIORITY
+
+The hound reaches your squad and... nothing happens. Soldiers run out of ammo and... never reload. A soldier is "wounded" but fights at full effectiveness. These are the gaps that break immersion. Fix them.
+
+**Commit-level breakdown (small bites, each one testable):**
+
+1. **Hound melee attack — damage a soldier**
+   - File: `scripts/entities/hound.gd` → `_process_attack()` (line ~324, currently a placeholder)
+   - What to do: When hound is in ATTACK state and within 1-2 cells of a squad, pick the closest soldier and deal damage on a cooldown timer (e.g. every 2 seconds)
+   - Use `combat_resolver.roll_wound_severity()` to determine wound (1=light, 2=serious, 3=critical, 4=killed)
+   - Set `soldier.wound_state` to the result
+   - If wound == 4 (killed), set `soldier.state = State.DEAD`
+   - Print a log: `"🔴 Hound attacks Cpl. Jones — SERIOUS WOUND"` or `"💀 ... — KILLED"`
+   - Hound needs a reference to the squad's soldiers. It already has `current_target` (the squad Node2D). Access soldiers via `current_target.soldiers`
+
+2. **Squad handles soldier death**
+   - File: `scripts/entities/squad.gd`
+   - What to do: Dead soldiers are already skipped in movement, combat, and composure loops (checks for `State.DEAD` exist everywhere)
+   - Add: When a soldier dies, print casualty report `"💀 Squad Alpha — Cpl. Jones KIA (3/5 remaining)"`
+   - Add: If the LEADER dies, promote the next living soldier to leader (update `leader` reference, change their `role` to "leader")
+   - Add: If ALL soldiers dead, squad is wiped — print `"☠ Squad Alpha — WIPED OUT"`, stop processing (early return in `_on_tick` and `_process`)
+
+3. **Wound effects on soldiers**
+   - File: `scripts/entities/soldier.gd` (add helpers), `scripts/entities/squad.gd` (use them)
+   - What to do: Add `func get_wound_accuracy_modifier() -> int` to soldier.gd:
+     - `wound_state 0` → 0 (fine)
+     - `wound_state 1` → -10 (light wound)
+     - `wound_state 2` → -25 (serious)
+     - `wound_state 3` → -40 (critical, barely functional)
+   - Add `func get_wound_speed_modifier() -> float`:
+     - `wound_state 0` → 1.0
+     - `wound_state 1` → 0.85
+     - `wound_state 2` → 0.5
+     - `wound_state 3` → 0.2
+   - In squad.gd `_process_combat_tick()`: pass wound accuracy modifier into `fatigue_mod` (or add it alongside)
+   - In soldier.gd `steer_toward()`: multiply speed by wound speed modifier
+   - Wounded soldiers also take a composure hit when first wounded: `composure_value -= 15.0 * wound_state`
+
+4. **Casualty composure shock**
+   - File: `scripts/entities/squad.gd`
+   - What to do: When a squadmate dies, apply a one-time composure hit to all surviving soldiers
+   - Suggested: `ComposureSystem.apply_pressure(s.composure_value, 20.0, 1.0)` for each survivor (one-shot, not per-tick)
+   - If the LEADER dies, double the shock (40.0) — losing the NCO is devastating
+   - This creates the cascade: hound kills one soldier → everyone's composure drops → they fire worse → hound kills another
+
+5. **Reload mechanic**
+   - File: `scripts/entities/squad.gd`, `scripts/entities/soldier.gd`
+   - What to do: When `ammo_current == 0` and soldier is not moving, start a reload timer (e.g. 3 seconds for Lee-Enfield, 4 seconds for Bren)
+   - Add to soldier.gd: `var is_reloading := false`, `var reload_timer := 0.0`
+   - Add to weapon_data.gd: `var reload_time := 3.0` (add field, set in factory methods)
+   - In squad.gd `_process()` (frame-based): tick `reload_timer` down like `fire_timer`
+   - When reload completes: `ammo_current = weapon.ammo_capacity`, `is_reloading = false`, print `"🔄 Cpl. Jones — RELOADED"`
+   - Reloading soldiers can't fire (check `is_reloading` in combat tick)
+
+6. **Squad wipe detection and game state**
+   - File: `scripts/entities/squad.gd`, `scripts/managers/battle_map.gd`
+   - What to do: Add `func is_wiped() -> bool` to squad.gd — returns true if all soldiers are dead
+   - In battle_map.gd: check `squad.is_wiped()` and handle gracefully (deselect, skip in detection loop, etc.)
+   - Don't remove the squad node — keep it so the game can show a "your squad was destroyed" state
+
+### Phase B: "Bodies Get Tired" (AFTER A.5)
+7. Fatigue system (check-based, not point-pool)
+8. Movement modes (rush/advance/cautious/crawl)
+9. Recovery mechanics
+
+### Phase C: "Before the Storm" (AFTER B)
+10. Setup phase (turn-based unit placement before real-time)
+11. Mission objectives (survive/evacuate/delay/kill)
+12. Victory assessment and gradients
+
+---
+
 ## Migration Roadmap
 
 The codebase is transitioning from the current monolithic layout to the architecture described in `docs/ARCHITECTURE.md`. Each phase is non-breaking — old and new systems coexist until the old ones are replaced.
@@ -211,6 +285,12 @@ The codebase is transitioning from the current monolithic layout to the architec
 - Firing noise detection feedback: squad_is_firing feeds into hound hearing channel
 - Ammo tracking: low warnings, empty magazine handling
 - Sergeant-as-floor: leader's composure level is minimum for squad
+- BROKEN lockout: composure can't recover while threats are still detected
+- Transition-only logging: composure prints only on level changes, not every tick
+
+### Phase A.5: "Things Bite Back" (CURRENT PRIORITY)
+Hound melee attacks, soldier wounding/death, squad casualty handling, reload.
+See `## What's NOT Built Yet` below for detailed breakdown.
 
 ---
 

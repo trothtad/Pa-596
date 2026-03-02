@@ -23,6 +23,7 @@ var state: int = State.IDLE
 var morale_modifier := 0.0  # personal bravery offset (-10 to +10)
 var fatigue := 0.0
 var wound_state := 0  # 0=fine, 1=light, 2=serious, 3=critical
+var death_handled := false  # true once squad has processed this soldier's death
 
 # Combat
 var weapon = null               # WeaponData instance, assigned at spawn

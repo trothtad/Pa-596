@@ -91,7 +91,10 @@ func _snap_soldiers_to_grid() -> void:
 func _process(delta: float) -> void:
 	if not battle_map:
 		return
-	
+	if is_wiped():
+		queue_redraw()
+		return
+
 	# Leader follows A* path
 	if is_moving and move_path.size() > 0:
 		_process_leader_movement(delta)
@@ -182,7 +185,13 @@ func _on_tick(_tick_number: int) -> void:
 	"""All combat logic runs at fixed tick rate (10Hz at 1x speed), not per frame."""
 	if not battle_map:
 		return
+	if is_wiped():
+		return
 	var tick_delta := 1.0 / TickManager.BASE_TICKS_PER_SECOND
+
+	# Casualties first — deaths from hound melee are applied in _process(),
+	# so we catch and report them here before any other logic runs.
+	_process_casualties()
 
 	# Order matters: incoming fire → composure update → fire control
 	# Pressure applied first, then recovery/floor, then shooting
@@ -510,6 +519,50 @@ func get_ammo_status() -> String:
 		return "No ammo"
 	var pct: int = int(float(total_current) / float(total_capacity) * 100.0)
 	return "%d/%d rounds (%d%%)" % [total_current, total_capacity, pct]
+
+# --- Casualty Handling ---
+
+func is_wiped() -> bool:
+	"""True when every soldier is dead. Squad stops all activity."""
+	return _count_living() == 0
+
+func _count_living() -> int:
+	var count := 0
+	for s in soldiers:
+		if s.state != SoldierClass.State.DEAD:
+			count += 1
+	return count
+
+func _process_casualties() -> void:
+	"""Detect newly-dead soldiers and trigger reporting and leader promotion."""
+	for s in soldiers:
+		if s.state == SoldierClass.State.DEAD and not s.death_handled:
+			s.death_handled = true
+			_on_soldier_died(s)
+
+func _on_soldier_died(dead_soldier) -> void:
+	"""React to a soldier's death: report, promote leader if needed, check for wipe."""
+	var alive := _count_living()
+
+	if alive == 0:
+		print("☠ %s — WIPED OUT" % squad_name)
+		return
+
+	var was_leader := (dead_soldier == leader)
+	print("💀 %s — %s KIA (%d/%d remaining)" % [
+		squad_name, dead_soldier.soldier_name, alive, soldiers.size()
+	])
+
+	# If the leader went down, promote the first living soldier
+	if was_leader:
+		for candidate in soldiers:
+			if candidate.state != SoldierClass.State.DEAD:
+				leader = candidate
+				leader.role = "leader"
+				print("⬆ %s — %s promoted to squad leader" % [
+					squad_name, leader.soldier_name
+				])
+				break
 
 # --- Drawing ---
 

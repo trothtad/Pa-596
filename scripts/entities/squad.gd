@@ -31,8 +31,8 @@ var sight_range := 12
 var selected := false
 
 # Rubber band settings
-var formation_spread := 32.0  # pixels - how far troops spread from leader (roughly one cell)
-var cohesion_range := 80.0    # pixels - max distance before "separated"
+var formation_spread := 64.0  # pixels - how far troops spread from leader (roughly one cell)
+var cohesion_range := 120.0    # pixels - max distance before "separated"
 
 # Combat
 var combat_target: Node2D = null  # current target (hound etc), set by engagement logic
@@ -82,8 +82,8 @@ func _snap_soldiers_to_grid() -> void:
 			s.world_pos = center
 		else:
 			# Offset troops in a rough cluster behind/around leader
-			var angle = (float(i) / soldiers.size()) * TAU + randf_range(-0.3, 0.3)
-			var dist = formation_spread * randf_range(0.5, 1.0)
+			var angle = (float(i) / soldiers.size()) * TAU + randf_range(-0.9, 0.9)
+			var dist = formation_spread * randf_range(0.1, 1.0)
 			s.world_pos = center + Vector2(cos(angle), sin(angle)) * dist
 	
 	position = center
@@ -203,9 +203,9 @@ func _process_incoming_fire(delta: float) -> void:
 	const TERROR_FAR := 10       # mild unease — something's out there
 
 	# Pressure amounts (composure points/sec)
-	const PRESSURE_CLOSE := 25.0   # 4 seconds from STEADY to BROKEN at close range
-	const PRESSURE_MEDIUM := 10.0  # noticeable but manageable
-	const PRESSURE_FAR := 3.0      # creeping dread
+	const PRESSURE_CLOSE := 15.0   # 4 seconds from STEADY to BROKEN at close range
+	const PRESSURE_MEDIUM := 4.0  # noticeable but manageable
+	const PRESSURE_FAR := 1.0      # creeping dread
 
 	for hostile in battle_map.hostiles:
 		if hostile.get("is_dead"):
@@ -270,7 +270,7 @@ func _process_composure_tick(delta: float) -> void:
 	"""Update composure for all soldiers. Recovery when safe, decay of under_fire timers.
 	BROKEN soldiers cannot recover while any hostile is still detected."""
 	# Check if any hostile is currently known (for BROKEN recovery lockout)
-	var threats_detected := not battle_map.detected_hostile_positions.is_empty()
+	var threats_detected : bool = not battle_map.detected_hostile_positions.is_empty()
 
 	for s in soldiers:
 		if s.state == SoldierClass.State.DEAD:

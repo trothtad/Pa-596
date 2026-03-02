@@ -104,8 +104,24 @@ func _process(delta: float) -> void:
 	
 	# Tick down fire timers each frame (smooth countdown, resolution on tick)
 	for s in soldiers:
-		if s.fire_timer > 0:
+		if s.fire_timer > 0 and not s.is_reloading:
 			s.fire_timer -= delta
+
+	# Reload management — timer only ticks while stationary (can't reload on the run)
+	for s in soldiers:
+		if s.state == SoldierClass.State.DEAD:
+			continue
+		if s.is_reloading and not s.is_moving:
+			s.reload_timer -= delta
+			if s.reload_timer <= 0.0:
+				s.is_reloading = false
+				s.ammo_current = s.weapon.ammo_capacity
+				s.fire_timer = 0.0
+				print("🔄 %s — RELOADED (%d rounds)" % [s.soldier_name, s.ammo_current])
+		elif s.ammo_current <= 0 and s.weapon != null and not s.is_reloading:
+			# Start reload
+			s.is_reloading = true
+			s.reload_timer = s.weapon.reload_time
 	
 	# Update squad grid_pos from leader
 	var old_grid = grid_pos
@@ -379,8 +395,8 @@ func _process_combat_tick(delta: float) -> void:
 		if s.is_moving:
 			continue
 
-		# Out of ammo?
-		if s.ammo_current <= 0:
+		# Out of ammo or currently reloading
+		if s.ammo_current <= 0 or s.is_reloading:
 			continue
 
 		# Range and doctrine check
@@ -443,10 +459,7 @@ func _process_combat_tick(delta: float) -> void:
 				distance * 4, result["hit_chance"]])
 
 		# Ammo warnings
-		if s.ammo_current == 0:
-			print("⚠ %s — MAGAZINE EMPTY" % s.soldier_name)
-			s.fire_timer = INF  # stop checking until reload (FUTURE: reload mechanic)
-		elif s.weapon.ammo_capacity > 0:
+		if s.weapon.ammo_capacity > 0:
 			var ammo_pct: float = float(s.ammo_current) / float(s.weapon.ammo_capacity)
 			if ammo_pct <= 0.25 and ammo_pct + (1.0 / float(s.weapon.ammo_capacity)) > 0.25:
 				# Just crossed the 25% threshold

@@ -31,6 +31,8 @@ var weapon = null               # WeaponData instance, assigned at spawn
 var accuracy := 65             # base accuracy (d100 roll-under)
 var ammo_current := 10         # current ammo (set from weapon on assign)
 var fire_timer := 0.0          # seconds until next shot (counts down)
+var is_reloading := false      # true while executing a reload
+var reload_timer := 0.0        # seconds remaining until reload completes
 var suppression := 0.0         # 0.0 = calm, 1.0 = fully suppressed  # FUTURE: moves to entity blackboard
 var composure_value := 70.0    # 0-100 float, higher = calmer (STEADY tier)  # FUTURE: moves to entity blackboard
 var last_composure_level: int = ComposureSystem.Level.STEADY  # tracks previous tick for transition detection

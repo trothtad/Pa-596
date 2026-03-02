@@ -10,6 +10,7 @@ var base_accuracy := 65    # base hit chance at optimal range (d100 roll-under)
 var pen := 1               # penetration tier: 0=pistol, 1=rifle, 2=AT weapon, 3=heavy AT
 var ammo_capacity := 10    # magazine/clip size
 var noise_radius := 15     # detection radius in cells when fired
+var reload_time := 3.0     # seconds to reload an empty weapon
 
 # Range profile (in cells, 1 cell = ~4m)
 var optimal_range := 8     # ~32m - no range penalty inside this
@@ -52,6 +53,7 @@ func from_json(weapon_id: String) -> RefCounted:
 	w.noise_radius = gp.get("noise_cells", 15)
 	w.optimal_range = gp.get("optimal_range", 8)
 	w.max_range = gp.get("max_range", 40)
+	w.reload_time = gp.get("reload_time", 3.0)
 	return w
 
 # --- Legacy factory methods ---
@@ -69,6 +71,7 @@ func lee_enfield() -> RefCounted:
 	w.noise_radius = 15
 	w.optimal_range = 10   # ~40m
 	w.max_range = 50       # ~200m
+	w.reload_time = 3.0    # stripper clip + bolt cycle
 	return w
 
 func bren_gun() -> RefCounted:
@@ -80,6 +83,7 @@ func bren_gun() -> RefCounted:
 	w.noise_radius = 18
 	w.optimal_range = 8
 	w.max_range = 40
+	w.reload_time = 4.0    # top-loading magazine, slower
 	return w
 
 func sten_gun() -> RefCounted:
@@ -91,4 +95,5 @@ func sten_gun() -> RefCounted:
 	w.noise_radius = 12
 	w.optimal_range = 4
 	w.max_range = 15
+	w.reload_time = 3.0    # side magazine swap
 	return w

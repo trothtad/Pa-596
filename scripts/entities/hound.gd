@@ -5,6 +5,7 @@ extends Node2D
 
 const PathfinderClass = preload("res://scripts/systems/pathfinder.gd")
 const DetectionClass = preload("res://scripts/systems/detection.gd")
+const CombatResolverClass = preload("res://scripts/systems/combat_resolver.gd")
 
 # --- State Machine ---
 enum State { IDLE, PATROL, STALK, CHASE, ATTACK, SEARCH }
@@ -64,6 +65,11 @@ var hp_max := 4          # penetrating hits to kill
 var hp_current := 4
 var is_dead := false
 
+# Melee attack
+var attack_timer := 0.0      # counts down to next swing
+var attack_cooldown := 2.0   # seconds between attacks
+var combat_resolver = null   # CombatResolverClass instance
+
 # Reference
 var battle_map: Node2D = null
 var pathfinder = null
@@ -119,6 +125,8 @@ func _ready() -> void:
 		observer_profile = DetectionClass.make_hound_observer()
 	if not target_profile:
 		target_profile = DetectionClass.make_hound_target()
+
+	combat_resolver = CombatResolverClass.new()
 
 	# Connect to TickManager for fixed-rate detection processing
 	TickManager.tick.connect(_on_tick)
@@ -321,14 +329,47 @@ func _process_chase(delta: float) -> void:
 	
 	_follow_path(delta, run_speed)
 
-func _process_attack(_delta: float) -> void:
-	# Placeholder — we'll build this when we add combat
-	# For now, just print something terrifying and go back to chase
-	if current_target:
-		var dist = grid_pos.distance_to(Vector2(current_target.grid_pos))
-		if dist > 2.0:
-			# Target moved away, pursue
-			_change_state(State.CHASE)
+func _process_attack(delta: float) -> void:
+	if not current_target:
+		_change_state(State.SEARCH)
+		return
+
+	var dist = grid_pos.distance_to(Vector2(current_target.grid_pos))
+	if dist > 2.5:
+		# Target moved away — give chase
+		_change_state(State.CHASE)
+		return
+
+	# Tick the attack cooldown
+	attack_timer -= delta
+	if attack_timer > 0.0:
+		return
+	attack_timer = attack_cooldown
+
+	# Pick the closest living soldier
+	var closest_soldier = null
+	var closest_dist := INF
+	for s in current_target.soldiers:
+		if s.state == s.State.DEAD:
+			continue
+		var d = grid_pos.distance_to(Vector2(s.get_grid_pos()))
+		if d < closest_dist:
+			closest_dist = d
+			closest_soldier = s
+
+	if not closest_soldier:
+		return  # Everyone already dead
+
+	# Roll wound severity and apply it
+	var wound : int = combat_resolver.roll_wound_severity()
+	closest_soldier.wound_state = wound
+
+	var wound_names := ["", "LIGHT WOUND", "SERIOUS WOUND", "CRITICAL WOUND", "KILLED"]
+	if wound >= 4:
+		closest_soldier.state = closest_soldier.State.DEAD
+		print("💀 Hound attacks %s — %s" % [closest_soldier.soldier_name, wound_names[wound]])
+	else:
+		print("🔴 Hound attacks %s — %s" % [closest_soldier.soldier_name, wound_names[wound]])
 
 func _process_search(delta: float) -> void:
 	search_timer += delta

@@ -91,7 +91,10 @@ func _snap_soldiers_to_grid() -> void:
 func _process(delta: float) -> void:
 	if not battle_map:
 		return
-	
+	if is_wiped():
+		queue_redraw()
+		return
+
 	# Leader follows A* path
 	if is_moving and move_path.size() > 0:
 		_process_leader_movement(delta)
@@ -101,8 +104,24 @@ func _process(delta: float) -> void:
 	
 	# Tick down fire timers each frame (smooth countdown, resolution on tick)
 	for s in soldiers:
-		if s.fire_timer > 0:
+		if s.fire_timer > 0 and not s.is_reloading:
 			s.fire_timer -= delta
+
+	# Reload management — timer only ticks while stationary (can't reload on the run)
+	for s in soldiers:
+		if s.state == SoldierClass.State.DEAD:
+			continue
+		if s.is_reloading and not s.is_moving:
+			s.reload_timer -= delta
+			if s.reload_timer <= 0.0:
+				s.is_reloading = false
+				s.ammo_current = s.weapon.ammo_capacity
+				s.fire_timer = 0.0
+				print("🔄 %s — RELOADED (%d rounds)" % [s.soldier_name, s.ammo_current])
+		elif s.ammo_current <= 0 and s.weapon != null and not s.is_reloading:
+			# Start reload
+			s.is_reloading = true
+			s.reload_timer = s.weapon.reload_time
 	
 	# Update squad grid_pos from leader
 	var old_grid = grid_pos
@@ -182,7 +201,13 @@ func _on_tick(_tick_number: int) -> void:
 	"""All combat logic runs at fixed tick rate (10Hz at 1x speed), not per frame."""
 	if not battle_map:
 		return
+	if is_wiped():
+		return
 	var tick_delta := 1.0 / TickManager.BASE_TICKS_PER_SECOND
+
+	# Casualties first — deaths from hound melee are applied in _process(),
+	# so we catch and report them here before any other logic runs.
+	_process_casualties()
 
 	# Order matters: incoming fire → composure update → fire control
 	# Pressure applied first, then recovery/floor, then shooting
@@ -370,8 +395,8 @@ func _process_combat_tick(delta: float) -> void:
 		if s.is_moving:
 			continue
 
-		# Out of ammo?
-		if s.ammo_current <= 0:
+		# Out of ammo or currently reloading
+		if s.ammo_current <= 0 or s.is_reloading:
 			continue
 
 		# Range and doctrine check
@@ -390,7 +415,7 @@ func _process_combat_tick(delta: float) -> void:
 
 		# FIRE!
 		var suppressed: bool = s.suppression > 0.3
-		var fatigue_mod: int = int(-s.fatigue * 0.15)  # 0 to -15
+		var fatigue_mod: int = int(-s.fatigue * 0.15) + s.get_wound_accuracy_modifier()  # fatigue + wound penalty
 
 		var result: Dictionary = resolver.resolve_full_shot(
 			s.weapon,
@@ -434,10 +459,7 @@ func _process_combat_tick(delta: float) -> void:
 				distance * 4, result["hit_chance"]])
 
 		# Ammo warnings
-		if s.ammo_current == 0:
-			print("⚠ %s — MAGAZINE EMPTY" % s.soldier_name)
-			s.fire_timer = INF  # stop checking until reload (FUTURE: reload mechanic)
-		elif s.weapon.ammo_capacity > 0:
+		if s.weapon.ammo_capacity > 0:
 			var ammo_pct: float = float(s.ammo_current) / float(s.weapon.ammo_capacity)
 			if ammo_pct <= 0.25 and ammo_pct + (1.0 / float(s.weapon.ammo_capacity)) > 0.25:
 				# Just crossed the 25% threshold
@@ -510,6 +532,64 @@ func get_ammo_status() -> String:
 		return "No ammo"
 	var pct: int = int(float(total_current) / float(total_capacity) * 100.0)
 	return "%d/%d rounds (%d%%)" % [total_current, total_capacity, pct]
+
+# --- Casualty Handling ---
+
+func is_wiped() -> bool:
+	"""True when every soldier is dead. Squad stops all activity."""
+	return _count_living() == 0
+
+func _count_living() -> int:
+	var count := 0
+	for s in soldiers:
+		if s.state != SoldierClass.State.DEAD:
+			count += 1
+	return count
+
+func _process_casualties() -> void:
+	"""Detect newly-wounded or newly-dead soldiers and trigger effects."""
+	for s in soldiers:
+		# New wound on a living soldier — composure shock
+		if s.wound_state > 0 and not s.wound_notified and s.state != SoldierClass.State.DEAD:
+			s.wound_notified = true
+			s.composure_value -= 15.0 * s.wound_state
+			s.composure_value = maxf(s.composure_value, 0.0)
+
+		# Death — report and handle leadership
+		if s.state == SoldierClass.State.DEAD and not s.death_handled:
+			s.death_handled = true
+			_on_soldier_died(s)
+
+func _on_soldier_died(dead_soldier) -> void:
+	"""React to a soldier's death: report, promote leader if needed, check for wipe."""
+	var alive := _count_living()
+
+	if alive == 0:
+		print("☠ %s — WIPED OUT" % squad_name)
+		return
+
+	var was_leader := (dead_soldier == leader)
+	print("💀 %s — %s KIA (%d/%d remaining)" % [
+		squad_name, dead_soldier.soldier_name, alive, soldiers.size()
+	])
+
+	# Composure shock — watching a squadmate die is devastating.
+	# Losing the NCO is worse (panic can cascade quickly without leadership).
+	var shock := 40.0 if was_leader else 20.0
+	for s in soldiers:
+		if s.state != SoldierClass.State.DEAD:
+			s.composure_value = ComposureSystem.apply_pressure(s.composure_value, shock, 1.0)
+
+	# If the leader went down, promote the first living soldier
+	if was_leader:
+		for candidate in soldiers:
+			if candidate.state != SoldierClass.State.DEAD:
+				leader = candidate
+				leader.role = "leader"
+				print("⬆ %s — %s promoted to squad leader" % [
+					squad_name, leader.soldier_name
+				])
+				break
 
 # --- Drawing ---
 

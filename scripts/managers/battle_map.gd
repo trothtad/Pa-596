@@ -344,6 +344,13 @@ func _on_terrain_changed() -> void:
 func _on_tick(_tick_number: int) -> void:
 	"""Detection runs at fixed tick rate (10Hz at 1x speed) not frame rate."""
 	var tick_delta := 1.0 / TickManager.BASE_TICKS_PER_SECOND
+
+	# Deselect a wiped squad so we're not holding a dead reference
+	if selected_unit and selected_unit.has_method("is_wiped") and selected_unit.is_wiped():
+		selected_unit.deselect()
+		selected_unit = null
+		preview_path.clear()
+
 	_process_squad_detection(tick_delta)
 
 func _process_squad_detection(delta: float) -> void:
@@ -361,6 +368,9 @@ func _process_squad_detection(delta: float) -> void:
 
 		# Each squad tries to detect — use the best result
 		for unit in units:
+			# Wiped squads have no observers
+			if unit.has_method("is_wiped") and unit.is_wiped():
+				continue
 			var distance = unit.grid_pos.distance_to(Vector2(hostile.grid_pos))
 
 			# Check LOS from this squad to the hostile

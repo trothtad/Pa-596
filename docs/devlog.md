@@ -1,5 +1,34 @@
 # Pā 596 - Development Log
 
+## Session: 2026-03-02 (Phase A.5)
+
+### What happened
+- Completed Phase A.5 ("Things Bite Back") — 6 commits
+- **Hound melee attack**: ATTACK state now picks closest living soldier every 2 seconds, rolls wound severity via `combat_resolver.roll_wound_severity()`, sets `wound_state` and `State.DEAD` on kills
+- **Squad casualty handling**: `death_handled` flag detects new deaths each tick, prints KIA report, promotes next soldier to leader when NCO falls, WIPED OUT when last man dies
+- **Wound effects**: `get_wound_accuracy_modifier()` and `get_wound_speed_modifier()` helpers on soldier, wired into shot resolution and `steer_toward()`. First-wound composure hit via `wound_notified` flag.
+- **Casualty composure shock**: squadmate death = 20.0 pressure on survivors; leader death = 40.0
+- **Reload mechanic**: timed reload on empty mag (Lee-Enfield 3s, Bren 4s, Sten 3s), pauses when moving, replaced `fire_timer = INF` hack
+- **Squad wipe in battle_map**: detection loop skips wiped squads, wipe auto-deselects
+
+### Key decisions
+- **Reload pauses while moving** — can't reload on the run; this creates tactical tension (stop to reload = exposed)
+- **death_handled / wound_notified flags** on soldier — avoids per-frame checks, makes one-time effects reliable
+- **Squad node kept alive after wipe** — intentional, lets future UI display "squad destroyed" state
+
+### What's next
+- Phase B: "Bodies Get Tired" — fatigue system, movement modes, wound effects on squad performance
+- Or: visual feedback for casualties (greyed-out dots for dead soldiers, wound indicator)
+- Or: run the full Phase A.5 checklist (see PR #2 test plan)
+
+### Known issues
+- combat_resolver still uses old int composure (bridged via to_legacy_composure)
+- combat_math.gd (Phase 1 pure static) still not wired in
+- Soldier State enum partially unused (PRONE, PINNED, PANICKED, WOUNDED never set — DEAD is the only active one)
+- Branch conflict: main has Red's vibecoded commit that diverged from our branch. Needs reconciliation before either PR can merge cleanly.
+
+---
+
 ## Session: 2026-02-12 (Phase A)
 
 ### What happened
